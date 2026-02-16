@@ -20,9 +20,14 @@ export interface RouteRule {
 export const protectedRoutes: RouteRule[] = [
   // Any authenticated user
   { path: "/dashboard" },
+  { path: "/settings" },
+  { path: "/notifications" },
 
-  // Admin-only area
-  { path: "/admin", roles: ["ADMIN"] },
+  // Role-specific areas
+  { path: "/admin", roles: ["ADMIN", "SUPER_ADMIN"] },
+  { path: "/manager", roles: ["MANAGER"] },
+  { path: "/sponsor", roles: ["SPONSOR"] },
+  { path: "/organizer", roles: ["ORGANIZER"] },
 ];
 
 /**

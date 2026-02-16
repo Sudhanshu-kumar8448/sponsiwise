@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { appConfig, redisConfig, jwtConfig } from './common/config';
@@ -34,6 +36,15 @@ import { CompanyLifecycleModule } from './company-lifecycle/company-lifecycle.mo
       load: [appConfig, redisConfig, jwtConfig, bullmqConfig],
     }),
     EventEmitterModule.forRoot(),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          name: 'default',
+          ttl: 60000,  // 60 seconds
+          limit: 60,   // 60 requests per minute (global baseline)
+        },
+      ],
+    }),
     CacheModule,
     QueueModule,
     WorkerModule,
@@ -57,6 +68,12 @@ import { CompanyLifecycleModule } from './company-lifecycle/company-lifecycle.mo
     CompanyLifecycleModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
-export class AppModule {}
+export class AppModule { }

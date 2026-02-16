@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException, Logger } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException, Logger } from '@nestjs/common';
 import { EventStatus, VerificationStatus, SponsorshipStatus, ProposalStatus } from '@prisma/client';
 import { PrismaService } from '../common/providers/prisma.service';
 import type {
@@ -6,6 +6,7 @@ import type {
   SponsorProposalsQueryDto,
   SponsorSponsorshipsQueryDto,
 } from './dto';
+import type { CreateProposalDto } from './dto';
 
 /**
  * SponsorService — read-only aggregation layer for sponsor-scoped data.
@@ -17,7 +18,7 @@ import type {
 export class SponsorService {
   private readonly logger = new Logger(SponsorService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   /**
    * Validate that the caller has a linked company.
@@ -361,6 +362,311 @@ export class SponsorService {
       total,
       page,
       page_size,
+    };
+  }
+
+  // ─── Single Event Detail ────────────────────────────────────
+
+  async getEventById(tenantId: string, companyId: string | undefined, eventId: string) {
+    this.assertCompanyId(companyId);
+
+    const event = await this.prisma.event.findFirst({
+      where: {
+        id: eventId,
+        tenantId,
+        isActive: true,
+        status: EventStatus.PUBLISHED,
+        verificationStatus: VerificationStatus.VERIFIED,
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        location: true,
+        startDate: true,
+        endDate: true,
+        logoUrl: true,
+        organizer: {
+          select: { id: true, name: true, logoUrl: true },
+        },
+      },
+    });
+
+    if (!event) {
+      throw new NotFoundException('Event not found');
+    }
+
+    return {
+      id: event.id,
+      title: event.title,
+      slug: event.id,
+      description: event.description || '',
+      start_date: event.startDate.toISOString(),
+      end_date: event.endDate.toISOString(),
+      location: event.location || '',
+      image_url: event.logoUrl || null,
+      category: '',
+      status: 'published',
+      organizer: {
+        id: event.organizer.id,
+        name: event.organizer.name,
+        logo_url: event.organizer.logoUrl || null,
+      },
+      sponsorship_tiers: [],
+      tags: [],
+    };
+  }
+
+  // ─── Single Proposal Detail ─────────────────────────────────
+
+  async getProposalById(tenantId: string, companyId: string | undefined, proposalId: string) {
+    this.assertCompanyId(companyId);
+
+    const proposal = await this.prisma.proposal.findFirst({
+      where: {
+        id: proposalId,
+        tenantId,
+        isActive: true,
+        sponsorship: { companyId },
+      },
+      select: {
+        id: true,
+        status: true,
+        proposedAmount: true,
+        proposedTier: true,
+        message: true,
+        notes: true,
+        submittedAt: true,
+        reviewedAt: true,
+        createdAt: true,
+        updatedAt: true,
+        sponsorship: {
+          select: {
+            id: true,
+            eventId: true,
+            event: {
+              select: {
+                id: true,
+                title: true,
+                startDate: true,
+                location: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!proposal) {
+      throw new NotFoundException('Proposal not found');
+    }
+
+    return {
+      id: proposal.id,
+      event_id: proposal.sponsorship.eventId,
+      sponsorship_id: proposal.sponsorship.id,
+      title: proposal.proposedTier || '',
+      description: proposal.message || '',
+      amount: proposal.proposedAmount ? Number(proposal.proposedAmount) : 0,
+      currency: 'USD',
+      status: proposal.status.toLowerCase(),
+      event: {
+        id: proposal.sponsorship.event.id,
+        title: proposal.sponsorship.event.title,
+        slug: proposal.sponsorship.event.id,
+        start_date: proposal.sponsorship.event.startDate.toISOString(),
+        location: proposal.sponsorship.event.location || '',
+      },
+      submitted_at: proposal.submittedAt?.toISOString() || null,
+      reviewed_at: proposal.reviewedAt?.toISOString() || null,
+      reviewer_notes: proposal.notes || null,
+      created_at: proposal.createdAt.toISOString(),
+      updated_at: proposal.updatedAt.toISOString(),
+    };
+  }
+
+  // ─── Create Proposal ────────────────────────────────────────
+
+  async createProposal(tenantId: string, companyId: string | undefined, dto: CreateProposalDto) {
+    this.assertCompanyId(companyId);
+
+    // Verify the event exists, is published, and verified
+    const event = await this.prisma.event.findFirst({
+      where: {
+        id: dto.eventId,
+        tenantId,
+        isActive: true,
+        status: EventStatus.PUBLISHED,
+        verificationStatus: VerificationStatus.VERIFIED,
+      },
+    });
+
+    if (!event) {
+      throw new NotFoundException('Event not found or not available for sponsorship');
+    }
+
+    // Create or find existing sponsorship, then create proposal in a transaction
+    const result = await this.prisma.$transaction(async (tx) => {
+      // Upsert: find existing sponsorship or create one
+      let sponsorship = await tx.sponsorship.findFirst({
+        where: {
+          companyId,
+          eventId: dto.eventId,
+          tenantId,
+        },
+      });
+
+      if (!sponsorship) {
+        sponsorship = await tx.sponsorship.create({
+          data: {
+            companyId,
+            eventId: dto.eventId,
+            tenantId,
+            status: SponsorshipStatus.PENDING,
+            tier: dto.proposedTier || null,
+          },
+        });
+      }
+
+      // Create the proposal
+      const proposal = await tx.proposal.create({
+        data: {
+          sponsorshipId: sponsorship.id,
+          tenantId,
+          proposedAmount: dto.proposedAmount ?? null,
+          proposedTier: dto.proposedTier ?? null,
+          message: dto.message ?? null,
+          status: ProposalStatus.SUBMITTED,
+          submittedAt: new Date(),
+        },
+        select: {
+          id: true,
+          status: true,
+          proposedAmount: true,
+          proposedTier: true,
+          message: true,
+          submittedAt: true,
+          createdAt: true,
+          updatedAt: true,
+          sponsorship: {
+            select: {
+              id: true,
+              eventId: true,
+              event: {
+                select: {
+                  id: true,
+                  title: true,
+                  startDate: true,
+                  location: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      return proposal;
+    });
+
+    return {
+      id: result.id,
+      event_id: result.sponsorship.eventId,
+      sponsorship_id: result.sponsorship.id,
+      title: result.proposedTier || '',
+      description: result.message || '',
+      amount: result.proposedAmount ? Number(result.proposedAmount) : 0,
+      currency: 'USD',
+      status: result.status.toLowerCase(),
+      event: {
+        id: result.sponsorship.event.id,
+        title: result.sponsorship.event.title,
+        slug: result.sponsorship.event.id,
+        start_date: result.sponsorship.event.startDate.toISOString(),
+        location: result.sponsorship.event.location || '',
+      },
+      submitted_at: result.submittedAt?.toISOString() || null,
+      reviewed_at: null,
+      reviewer_notes: null,
+      created_at: result.createdAt.toISOString(),
+      updated_at: result.updatedAt.toISOString(),
+    };
+  }
+
+  // ─── Withdraw Proposal ──────────────────────────────────────
+
+  async withdrawProposal(tenantId: string, companyId: string | undefined, proposalId: string) {
+    this.assertCompanyId(companyId);
+
+    const proposal = await this.prisma.proposal.findFirst({
+      where: {
+        id: proposalId,
+        tenantId,
+        isActive: true,
+        sponsorship: { companyId },
+      },
+    });
+
+    if (!proposal) {
+      throw new NotFoundException('Proposal not found');
+    }
+
+    // Only submitted proposals can be withdrawn
+    if (proposal.status !== ProposalStatus.SUBMITTED) {
+      throw new ForbiddenException(
+        `Cannot withdraw proposal with status "${proposal.status}". Only SUBMITTED proposals can be withdrawn.`,
+      );
+    }
+
+    const updated = await this.prisma.proposal.update({
+      where: { id: proposalId },
+      data: { status: ProposalStatus.WITHDRAWN },
+      select: {
+        id: true,
+        status: true,
+        proposedAmount: true,
+        proposedTier: true,
+        message: true,
+        submittedAt: true,
+        createdAt: true,
+        updatedAt: true,
+        sponsorship: {
+          select: {
+            id: true,
+            eventId: true,
+            event: {
+              select: {
+                id: true,
+                title: true,
+                startDate: true,
+                location: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return {
+      id: updated.id,
+      event_id: updated.sponsorship.eventId,
+      sponsorship_id: updated.sponsorship.id,
+      title: updated.proposedTier || '',
+      description: updated.message || '',
+      amount: updated.proposedAmount ? Number(updated.proposedAmount) : 0,
+      currency: 'USD',
+      status: updated.status.toLowerCase(),
+      event: {
+        id: updated.sponsorship.event.id,
+        title: updated.sponsorship.event.title,
+        slug: updated.sponsorship.event.id,
+        start_date: updated.sponsorship.event.startDate.toISOString(),
+        location: updated.sponsorship.event.location || '',
+      },
+      submitted_at: updated.submittedAt?.toISOString() || null,
+      reviewed_at: null,
+      reviewer_notes: null,
+      created_at: updated.createdAt.toISOString(),
+      updated_at: updated.updatedAt.toISOString(),
     };
   }
 }

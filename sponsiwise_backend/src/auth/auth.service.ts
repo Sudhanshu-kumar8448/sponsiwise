@@ -25,7 +25,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   /**
    * Get the authenticated user by ID.
@@ -236,11 +236,13 @@ export class AuthService {
       },
     });
 
-    // 8. Issue new token pair
+    // 8. Issue new token pair (must include ALL claims, same as login)
     const payload: JwtPayload = {
       sub: user.id,
       role: user.role,
       tenant_id: user.tenantId,
+      ...(user.companyId && { company_id: user.companyId }),
+      ...(user.organizerId && { organizer_id: user.organizerId }),
     };
 
     const accessToken = this.jwtService.sign(payload);
@@ -251,6 +253,42 @@ export class AuthService {
       refreshToken,
       user: this.excludePassword(user),
     };
+  }
+
+  /**
+   * Logout: revoke the given refresh token.
+   * If the token is already revoked (potential reuse), revokes ALL user tokens.
+   */
+  async logout(incomingRefreshToken: string): Promise<{ message: string }> {
+    const tokenHash = this.hashToken(incomingRefreshToken);
+
+    const storedToken = await this.prisma.refreshToken.findFirst({
+      where: { tokenHash },
+    });
+
+    if (!storedToken) {
+      // Token not found — already invalid, nothing to do
+      return { message: 'Logged out successfully' };
+    }
+
+    if (storedToken.isRevoked) {
+      // Token reuse detected — revoke ALL tokens for this user
+      this.logger.warn(
+        `Logout with already-revoked token for user ${storedToken.userId}. Revoking all tokens.`,
+      );
+      await this.prisma.refreshToken.updateMany({
+        where: { userId: storedToken.userId },
+        data: { isRevoked: true },
+      });
+    } else {
+      // Normal logout — revoke this token
+      await this.prisma.refreshToken.update({
+        where: { id: storedToken.id },
+        data: { isRevoked: true },
+      });
+    }
+
+    return { message: 'Logged out successfully' };
   }
 
   // ─── PRIVATE HELPERS ──────────────────────────────────────
@@ -340,14 +378,25 @@ export class AuthService {
 
     // Hash new password and update
     const hashedPassword = await bcrypt.hash(newPassword, this.SALT_ROUNDS);
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { password: hashedPassword },
+
+    // Use a transaction to update password AND revoke all refresh tokens atomically
+    await this.prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: userId },
+        data: { password: hashedPassword },
+      });
+
+      // Revoke ALL existing refresh tokens — forces re-login on all devices
+      await tx.refreshToken.updateMany({
+        where: { userId, isRevoked: false },
+        data: { isRevoked: true },
+      });
     });
 
-    return { message: 'Password changed successfully' };
+    this.logger.log(`Password changed and all refresh tokens revoked for user ${userId}`);
+
+    return { message: 'Password changed successfully. All sessions have been revoked.' };
   }
 
-  // Future: logout()
   // Future: validateUser()
 }

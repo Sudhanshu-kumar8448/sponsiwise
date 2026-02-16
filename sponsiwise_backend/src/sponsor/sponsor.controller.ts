@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Param, Query, Body, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { AuthGuard, RoleGuard } from '../common/guards';
 import { Roles, CurrentUser } from '../common/decorators';
@@ -8,10 +8,11 @@ import {
   SponsorEventsQueryDto,
   SponsorProposalsQueryDto,
   SponsorSponsorshipsQueryDto,
+  CreateProposalDto,
 } from './dto';
 
 /**
- * SponsorController — authenticated, read-only endpoints for the Sponsor dashboard.
+ * SponsorController — endpoints for the Sponsor dashboard.
  *
  * All routes:
  *  - Require valid JWT (AuthGuard)
@@ -23,12 +24,10 @@ import {
 @UseGuards(AuthGuard, RoleGuard)
 @Roles(Role.SPONSOR)
 export class SponsorController {
-  constructor(private readonly sponsorService: SponsorService) {}
+  constructor(private readonly sponsorService: SponsorService) { }
 
   /**
    * GET /sponsor/dashboard/stats
-   *
-   * Returns aggregate stats for the sponsor dashboard overview.
    */
   @Get('dashboard/stats')
   async getDashboardStats(@CurrentUser() user: JwtPayloadWithClaims) {
@@ -37,9 +36,6 @@ export class SponsorController {
 
   /**
    * GET /sponsor/events
-   *
-   * Returns paginated list of events available for sponsorship.
-   * Excludes events already sponsored by the caller's company.
    */
   @Get('events')
   async getEvents(
@@ -50,10 +46,18 @@ export class SponsorController {
   }
 
   /**
+   * GET /sponsor/events/:id
+   */
+  @Get('events/:id')
+  async getEventById(
+    @Param('id') eventId: string,
+    @CurrentUser() user: JwtPayloadWithClaims,
+  ) {
+    return this.sponsorService.getEventById(user.tenant_id, user.company_id, eventId);
+  }
+
+  /**
    * GET /sponsor/proposals
-   *
-   * Returns paginated proposals created by the sponsor's company.
-   * Supports optional status and eventId filters.
    */
   @Get('proposals')
   async getProposals(
@@ -64,10 +68,42 @@ export class SponsorController {
   }
 
   /**
+   * GET /sponsor/proposals/:id
+   */
+  @Get('proposals/:id')
+  async getProposalById(
+    @Param('id') proposalId: string,
+    @CurrentUser() user: JwtPayloadWithClaims,
+  ) {
+    return this.sponsorService.getProposalById(user.tenant_id, user.company_id, proposalId);
+  }
+
+  /**
+   * POST /sponsor/proposals
+   */
+  @Post('proposals')
+  @HttpCode(HttpStatus.CREATED)
+  async createProposal(
+    @Body() dto: CreateProposalDto,
+    @CurrentUser() user: JwtPayloadWithClaims,
+  ) {
+    return this.sponsorService.createProposal(user.tenant_id, user.company_id, dto);
+  }
+
+  /**
+   * POST /sponsor/proposals/:id/withdraw
+   */
+  @Post('proposals/:id/withdraw')
+  @HttpCode(HttpStatus.OK)
+  async withdrawProposal(
+    @Param('id') proposalId: string,
+    @CurrentUser() user: JwtPayloadWithClaims,
+  ) {
+    return this.sponsorService.withdrawProposal(user.tenant_id, user.company_id, proposalId);
+  }
+
+  /**
    * GET /sponsor/sponsorships
-   *
-   * Returns paginated sponsorships for the sponsor's company.
-   * Supports optional status filter.
    */
   @Get('sponsorships')
   async getSponsorships(
@@ -77,3 +113,4 @@ export class SponsorController {
     return this.sponsorService.getSponsorships(user.tenant_id, user.company_id, query);
   }
 }
+

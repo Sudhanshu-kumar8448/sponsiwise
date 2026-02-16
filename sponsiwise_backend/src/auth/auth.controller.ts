@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto, ChangePasswordDto } from './dto';
 import { AuthGuard } from '../common/guards';
@@ -34,7 +35,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   /**
    * GET /auth/me
@@ -52,6 +53,7 @@ export class AuthController {
    * Returns the created user without password.
    */
   @Post('register')
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
@@ -62,6 +64,7 @@ export class AuthController {
    * Returns user info without tokens in response body.
    */
   @Post('login')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
     const { accessToken, refreshToken, user } = await this.authService.login(dto);
@@ -82,6 +85,7 @@ export class AuthController {
    * Returns user info without tokens in response body.
    */
   @Post('refresh')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const incomingRefreshToken = req.cookies?.refresh_token;
@@ -122,7 +126,7 @@ export class AuthController {
 
   /**
    * Set refresh token as HTTP-only cookie.
-   * path: '/auth/refresh' — only sent to the refresh endpoint,
+   * path: '/auth' — sent to both /auth/refresh and /auth/logout,
    * minimizing exposure on every request.
    */
   private setRefreshTokenCookie(res: Response, refreshToken: string): void {
@@ -135,7 +139,7 @@ export class AuthController {
       secure: isProduction,
       sameSite: 'lax',
       maxAge: this.parseDurationMs(refreshExpiresIn),
-      path: '/auth/refresh',
+      path: '/auth',
     });
   }
 
@@ -170,5 +174,36 @@ export class AuthController {
     return this.authService.changePassword(user.sub, dto.currentPassword, dto.newPassword);
   }
 
-  // Future: @Post('logout')
+  /**
+   * POST /auth/logout
+   * Revokes the refresh token in DB and clears both auth cookies.
+   */
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const incomingRefreshToken = req.cookies?.refresh_token;
+
+    if (incomingRefreshToken) {
+      await this.authService.logout(incomingRefreshToken);
+    }
+
+    // Clear both cookies regardless
+    const isProduction = this.isProduction();
+
+    res.clearCookie('access_token', {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax',
+      path: '/',
+    });
+
+    res.clearCookie('refresh_token', {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax',
+      path: '/auth',
+    });
+
+    return { message: 'Logged out successfully' };
+  }
 }

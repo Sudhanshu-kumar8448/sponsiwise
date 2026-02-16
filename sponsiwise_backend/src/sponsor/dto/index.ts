@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsInt, Min, Max } from 'class-validator';
+import { IsOptional, IsString, IsInt, Min, Max, IsUUID, IsNumber } from 'class-validator';
 import { Type } from 'class-transformer';
 
 /**
@@ -53,3 +53,26 @@ export class SponsorSponsorshipsQueryDto extends PaginationQueryDto {
   @IsString()
   status?: string;
 }
+
+/**
+ * POST /sponsor/proposals — create a new sponsorship proposal.
+ */
+export class CreateProposalDto {
+  @IsUUID()
+  eventId!: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  proposedAmount?: number;
+
+  @IsOptional()
+  @IsString()
+  proposedTier?: string;
+
+  @IsOptional()
+  @IsString()
+  message?: string;
+}
+
