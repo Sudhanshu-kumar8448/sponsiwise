@@ -116,10 +116,7 @@ export class ManagerLifecycleService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async getEventLifecycle(
-    tenantId: string,
-    eventId: string,
-  ): Promise<EventLifecycleResponse> {
+  async getEventLifecycle(tenantId: string, eventId: string): Promise<EventLifecycleResponse> {
     // ─── 1. Fetch event with organizer ──────────────────────────────
     const event = await this.prisma.event.findFirst({
       where: { id: eventId, tenantId },
@@ -245,9 +242,7 @@ export class ManagerLifecycleService {
     for (const proposal of proposals) {
       if (proposal.submittedAt) {
         const alreadyHasSubmitted = timeline.some(
-          (t) =>
-            t.type === 'PROPOSAL_SUBMITTED' &&
-            t.entityId === proposal.id,
+          (t) => t.type === 'PROPOSAL_SUBMITTED' && t.entityId === proposal.id,
         );
         if (!alreadyHasSubmitted) {
           timeline.push({
@@ -340,11 +335,7 @@ export class ManagerLifecycleService {
   /**
    * Human-readable description for an audit action.
    */
-  private describeAuditAction(
-    action: string,
-    entityType: string,
-    entityId: string,
-  ): string {
+  private describeAuditAction(action: string, entityType: string, entityId: string): string {
     const shortId = entityId.slice(0, 8);
     const descriptions: Record<string, string> = {
       'event.verified': `Event ${shortId}… was verified`,
@@ -425,8 +416,7 @@ export class ManagerLifecycleService {
       // FAILED emails count toward total but NOT completed
     }
 
-    const percentage =
-      totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
+    const percentage = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
 
     return { totalSteps, completedSteps, percentage };
   }

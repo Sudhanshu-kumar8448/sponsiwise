@@ -9,11 +9,7 @@ import { Role } from '@prisma/client';
 import { PrismaService } from '../common/providers/prisma.service';
 import { UserRepository, type SafeUser } from '../users/user.repository';
 import { AuditLogService } from '../audit-logs/audit-log.service';
-import {
-  AdminUsersQueryDto,
-  AssignableRole,
-  UserStatusValue,
-} from './dto';
+import { AdminUsersQueryDto, AssignableRole, UserStatusValue } from './dto';
 
 /**
  * AdminService — business logic for admin-scoped APIs.
@@ -131,11 +127,7 @@ export class AdminService {
 
   // ─── List users ───────────────────────────────────────────────────────
 
-  async getUsers(
-    actorRole: Role,
-    tenantId: string,
-    query: AdminUsersQueryDto,
-  ) {
+  async getUsers(actorRole: Role, tenantId: string, query: AdminUsersQueryDto) {
     const isSuperAdmin = actorRole === Role.SUPER_ADMIN;
     const skip = (query.page - 1) * query.page_size;
     const take = query.page_size;
@@ -146,9 +138,7 @@ export class AdminService {
     else if (query.status === 'inactive') isActive = false;
 
     // Role filter
-    const roleFilter = query.role
-      ? (query.role.toUpperCase() as Role)
-      : undefined;
+    const roleFilter = query.role ? (query.role.toUpperCase() as Role) : undefined;
 
     if (isSuperAdmin) {
       // Cross-tenant: use findAll
@@ -186,11 +176,7 @@ export class AdminService {
 
   // ─── Get single user ─────────────────────────────────────────────────
 
-  async getUserById(
-    actorRole: Role,
-    tenantId: string,
-    userId: string,
-  ) {
+  async getUserById(actorRole: Role, tenantId: string, userId: string) {
     const user = await this.resolveUser(actorRole, tenantId, userId);
     return this.mapUserToDetailResponse(user);
   }
@@ -231,11 +217,9 @@ export class AdminService {
       ? await this.userRepository.updateById(targetUserId, {
           role: newRole as unknown as Role,
         })
-      : await this.userRepository.updateByIdAndTenant(
-          targetUserId,
-          tenantId,
-          { role: newRole as unknown as Role },
-        );
+      : await this.userRepository.updateByIdAndTenant(targetUserId, tenantId, {
+          role: newRole as unknown as Role,
+        });
 
     // 6. Audit log
     await this.auditLogService.log({
@@ -266,9 +250,7 @@ export class AdminService {
   ) {
     // 1. Guard: No user may deactivate themselves
     if (actorId === targetUserId) {
-      throw new BadRequestException(
-        'Cannot change your own account status',
-      );
+      throw new BadRequestException('Cannot change your own account status');
     }
 
     // 2. Resolve target user (respects tenant scoping)
@@ -288,11 +270,9 @@ export class AdminService {
       ? await this.userRepository.updateById(targetUserId, {
           isActive: newIsActive,
         })
-      : await this.userRepository.updateByIdAndTenant(
-          targetUserId,
-          tenantId,
-          { isActive: newIsActive },
-        );
+      : await this.userRepository.updateByIdAndTenant(targetUserId, tenantId, {
+          isActive: newIsActive,
+        });
 
     // 5. Audit log
     await this.auditLogService.log({
@@ -318,11 +298,7 @@ export class AdminService {
    * Resolve a user by ID, enforcing tenant scope for ADMIN and allowing
    * cross-tenant lookups for SUPER_ADMIN.
    */
-  private async resolveUser(
-    actorRole: Role,
-    tenantId: string,
-    userId: string,
-  ): Promise<SafeUser> {
+  private async resolveUser(actorRole: Role, tenantId: string, userId: string): Promise<SafeUser> {
     const isSuperAdmin = actorRole === Role.SUPER_ADMIN;
 
     const user = isSuperAdmin

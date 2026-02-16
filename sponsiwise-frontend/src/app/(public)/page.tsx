@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight,
   Zap,
@@ -11,6 +12,9 @@ import {
   Shield,
   ChevronRight,
   Star,
+  TrendingUp,
+  Award,
+  CheckCircle2,
 } from "lucide-react";
 import { MotionWrapper } from "@/components/ui";
 
@@ -22,24 +26,24 @@ const features = [
     title: "For Sponsors",
     description:
       "Discover events that align with your brand. Manage proposals, track ROI, and build lasting partnerships effortlessly.",
-    color: "from-blue-500 to-cyan-400",
-    bg: "bg-blue-50",
+    color: "from-blue-600 to-blue-400",
+    image: "/images/feature-sponsors.jpg",
   },
   {
     icon: <Calendar className="h-6 w-6" />,
     title: "For Organizers",
     description:
       "Attract the right sponsors for your events. Streamline communication and close deals faster than ever.",
-    color: "from-violet-500 to-purple-400",
-    bg: "bg-violet-50",
+    color: "from-blue-700 to-blue-500",
+    image: "/images/feature-organizers.jpg",
   },
   {
     icon: <BarChart3 className="h-6 w-6" />,
     title: "For Managers",
     description:
       "Oversee your portfolio with powerful dashboards. Monitor approvals, verification, and performance in real-time.",
-    color: "from-emerald-500 to-teal-400",
-    bg: "bg-emerald-50",
+    color: "from-blue-500 to-cyan-400",
+    image: "/images/feature-managers.jpg",
   },
 ];
 
@@ -47,39 +51,67 @@ const steps = [
   {
     step: "01",
     title: "Sign Up",
-    description: "Create your free account in seconds. Choose your role — sponsor, organizer, or both.",
+    description:
+      "Create your free account in seconds. Choose your role — sponsor, organizer, or both.",
+    icon: <Users className="h-6 w-6" />,
   },
   {
     step: "02",
     title: "Discover & Connect",
-    description: "Browse events, explore sponsorship tiers, and find the perfect match for your brand or event.",
+    description:
+      "Browse events, explore sponsorship tiers, and find the perfect match for your brand or event.",
+    icon: <Target className="h-6 w-6" />,
   },
   {
     step: "03",
     title: "Submit & Track",
-    description: "Send proposals, manage negotiations, and track every stage of your sponsorship lifecycle.",
+    description:
+      "Send proposals, manage negotiations, and track every stage of your sponsorship lifecycle.",
+    icon: <TrendingUp className="h-6 w-6" />,
   },
+];
+
+const stats = [
+  { value: "500+", label: "Events Managed", icon: <Calendar className="h-5 w-5" /> },
+  { value: "1,200+", label: "Active Sponsors", icon: <Users className="h-5 w-5" /> },
+  { value: "98%", label: "Satisfaction Rate", icon: <Award className="h-5 w-5" /> },
+  { value: "$10M+", label: "Deals Closed", icon: <TrendingUp className="h-5 w-5" /> },
 ];
 
 const testimonials = [
   {
     name: "Sarah Chen",
     role: "Marketing Director, TechVentures",
-    quote: "Sponsiwise transformed how we manage event partnerships. The ROI tracking alone saved us 20+ hours per quarter.",
+    quote:
+      "Sponsiwise transformed how we manage event partnerships. The ROI tracking alone saved us 20+ hours per quarter.",
     rating: 5,
+    avatar: "/images/avatar-1.jpg",
   },
   {
     name: "Raj Patel",
     role: "Event Organizer, DevConf",
-    quote: "Finding quality sponsors was always a headache. With Sponsiwise, we filled all our tiers in record time.",
+    quote:
+      "Finding quality sponsors was always a headache. With Sponsiwise, we filled all our tiers in record time.",
     rating: 5,
+    avatar: "/images/avatar-2.jpg",
   },
   {
     name: "Emily Rodriguez",
     role: "Brand Manager, NovaCorp",
-    quote: "The platform&apos;s transparency and lifecycle tracking gives us complete confidence in every partnership.",
+    quote:
+      "The platform&apos;s transparency and lifecycle tracking gives us complete confidence in every partnership.",
     rating: 5,
+    avatar: "/images/avatar-3.jpg",
   },
+];
+
+const trustedBrands = [
+  "TechVentures",
+  "DevConf",
+  "NovaCorp",
+  "EventPro",
+  "BrandSync",
+  "SponsorHub",
 ];
 
 // ─── Page ──────────────────────────────────────────────────────────────
@@ -87,52 +119,64 @@ const testimonials = [
 export default function LandingPage() {
   return (
     <div className="overflow-hidden">
-      {/* ── Hero ──────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-brand-50 px-4 pb-20 pt-16 sm:pb-28 sm:pt-24">
-        {/* Decorative background */}
-        <div className="pointer-events-none absolute -left-40 -top-40 h-80 w-80 rounded-full bg-brand-400/10 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-brand-300/10 blur-3xl" />
-        <div className="pointer-events-none absolute left-1/2 top-20 h-64 w-64 -translate-x-1/2 rounded-full bg-purple-300/5 blur-3xl" />
+      {/* ── Hero — Dark Bold ──────────────────────────────── */}
+      <section className="relative min-h-[600px] overflow-hidden lg:min-h-[700px]">
+        {/* Background image */}
+        <div className="absolute inset-0">
+          <Image
+            src="/images/hero-conference.jpg"
+            alt="Conference event with audience"
+            fill
+            priority
+            className="object-cover"
+            sizes="100vw"
+          />
+          <div className="hero-overlay absolute inset-0" />
+        </div>
 
-        <div className="relative mx-auto max-w-7xl">
-          <div className="mx-auto max-w-3xl text-center">
+        {/* Decorative floating elements */}
+        <div className="pointer-events-none absolute -left-40 top-20 h-80 w-80 rounded-full bg-blue-500/10 blur-3xl" />
+        <div className="pointer-events-none absolute -right-40 bottom-20 h-96 w-96 rounded-full bg-blue-400/10 blur-3xl" />
+
+        <div className="relative mx-auto flex max-w-7xl items-center px-4 py-20 sm:px-6 sm:py-28 lg:px-8 lg:py-36">
+          <div className="max-w-2xl">
             <MotionWrapper>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand-600">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-400/30 bg-blue-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-blue-300">
                 <Zap className="h-3.5 w-3.5" />
                 Sponsorship made simple
               </span>
             </MotionWrapper>
 
             <MotionWrapper delay={0.1}>
-              <h1 className="mt-6 text-4xl font-extrabold leading-[1.1] tracking-tight text-text-primary sm:text-5xl md:text-6xl lg:text-7xl">
+              <h1 className="mt-6 text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
                 Connect{" "}
-                <span className="gradient-text">Sponsors</span>
+                <span className="gradient-text-bold">Sponsors</span>
                 <br />
                 with{" "}
-                <span className="gradient-text">Events</span>
+                <span className="gradient-text-bold">Events</span>
               </h1>
             </MotionWrapper>
 
             <MotionWrapper delay={0.2}>
-              <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-text-secondary sm:text-xl">
-                Sponsiwise is the platform that makes sponsorship management
-                effortless. Find events to sponsor, or attract sponsors to your
-                events — all in one place.
+              <p className="mt-6 max-w-xl text-lg font-medium leading-relaxed text-slate-300 sm:text-xl">
+                Sponsiwise is the trusted platform that makes sponsorship
+                management effortless. Find events to sponsor, or attract
+                sponsors to your events — all in one place.
               </p>
             </MotionWrapper>
 
             <MotionWrapper delay={0.3}>
-              <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <div className="mt-10 flex flex-col gap-4 sm:flex-row">
                 <Link
                   href="/register"
-                  className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-brand-500 to-brand-400 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-brand-500/25 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-brand-500/30"
+                  className="group inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-8 py-4 text-base font-bold text-white shadow-lg shadow-blue-600/30 transition-all duration-300 hover:-translate-y-0.5 hover:bg-blue-500 hover:shadow-xl hover:shadow-blue-500/40"
                 >
                   Get Started Free
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </Link>
                 <Link
                   href="/events"
-                  className="group inline-flex items-center gap-2 rounded-xl border-2 border-brand-200 bg-white px-8 py-4 text-base font-semibold text-brand-600 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-500/10"
+                  className="group inline-flex items-center justify-center gap-2 rounded-xl border-2 border-white/20 bg-white/5 px-8 py-4 text-base font-bold text-white backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/10"
                 >
                   Explore Events
                   <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -142,15 +186,16 @@ export default function LandingPage() {
 
             {/* Trust indicators */}
             <MotionWrapper delay={0.4}>
-              <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-text-muted">
+              <div className="mt-12 flex flex-wrap items-center gap-6 text-sm font-semibold text-slate-400">
                 <span className="flex items-center gap-1.5">
-                  <Shield className="h-4 w-4 text-emerald-500" /> Verified Partners
+                  <Shield className="h-4 w-4 text-emerald-400" /> Verified
+                  Partners
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <Users className="h-4 w-4 text-brand-500" /> 1000+ Users
+                  <Users className="h-4 w-4 text-blue-400" /> 1000+ Users
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <Star className="h-4 w-4 text-amber-500" /> 4.9/5 Rating
+                  <Star className="h-4 w-4 text-amber-400" /> 4.9/5 Rating
                 </span>
               </div>
             </MotionWrapper>
@@ -158,15 +203,43 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Features ──────────────────────────────────── */}
+      {/* ── Stats Bar ────────────────────────────────────── */}
+      <section className="relative -mt-1 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 py-10">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.08)_0%,transparent_60%)]" />
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
+            {stats.map((stat, i) => (
+              <MotionWrapper key={stat.label} delay={i * 0.1}>
+                <div className="flex flex-col items-center text-center">
+                  <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white">
+                    {stat.icon}
+                  </div>
+                  <span className="text-3xl font-black text-white sm:text-4xl">
+                    {stat.value}
+                  </span>
+                  <span className="mt-1 text-sm font-semibold text-blue-100/80">
+                    {stat.label}
+                  </span>
+                </div>
+              </MotionWrapper>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Features ──────────────────────────────────────── */}
       <section className="bg-white py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <MotionWrapper>
             <div className="mx-auto max-w-2xl text-center">
-              <h2 className="text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
-                Why <span className="gradient-text">Sponsiwise</span>?
+              <span className="inline-block rounded-full bg-blue-100 px-4 py-1 text-xs font-bold uppercase tracking-wider text-blue-700">
+                Features
+              </span>
+              <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+                Why{" "}
+                <span className="gradient-text-bold">Sponsiwise</span>?
               </h2>
-              <p className="mt-4 text-lg text-text-secondary">
+              <p className="mt-4 text-lg font-medium text-slate-600">
                 Everything you need to manage sponsorships — whether you&apos;re
                 funding, organizing, or overseeing.
               </p>
@@ -176,18 +249,31 @@ export default function LandingPage() {
           <div className="mt-16 grid gap-8 sm:grid-cols-3">
             {features.map((feature, i) => (
               <MotionWrapper key={feature.title} delay={i * 0.1}>
-                <div className="group rounded-2xl border border-border-light bg-white p-8 shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-2 hover:shadow-[var(--shadow-card-hover)]">
-                  <div
-                    className={`inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${feature.color} text-white shadow-lg`}
-                  >
-                    {feature.icon}
+                <div className="card-img-zoom group overflow-hidden rounded-2xl border-2 border-slate-100 bg-white shadow-lg transition-all duration-300 hover:-translate-y-2 hover:border-blue-200 hover:shadow-2xl hover:shadow-blue-500/10">
+                  {/* Feature image */}
+                  <div className="relative h-48 w-full overflow-hidden">
+                    <Image
+                      src={feature.image}
+                      alt={feature.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent" />
                   </div>
-                  <h3 className="mt-5 text-xl font-bold text-text-primary">
-                    {feature.title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-text-secondary">
-                    {feature.description}
-                  </p>
+                  <div className="p-8">
+                    <div
+                      className={`inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${feature.color} text-white shadow-lg`}
+                    >
+                      {feature.icon}
+                    </div>
+                    <h3 className="mt-5 text-xl font-black text-slate-900">
+                      {feature.title}
+                    </h3>
+                    <p className="mt-3 text-sm font-medium leading-relaxed text-slate-600">
+                      {feature.description}
+                    </p>
+                  </div>
                 </div>
               </MotionWrapper>
             ))}
@@ -195,50 +281,82 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── How It Works ──────────────────────────────── */}
-      <section className="bg-gradient-to-b from-brand-50/50 to-white py-20 sm:py-28">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <MotionWrapper>
-            <div className="mx-auto max-w-2xl text-center">
-              <h2 className="text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
-                How It Works
-              </h2>
-              <p className="mt-4 text-lg text-text-secondary">
-                Get started in three simple steps
-              </p>
+      {/* ── How It Works — Dark Section ───────────────────── */}
+      <section className="section-dark relative overflow-hidden py-20 sm:py-28">
+        {/* Decorative background */}
+        <div className="pointer-events-none absolute -left-32 top-0 h-64 w-64 rounded-full bg-blue-500/10 blur-3xl" />
+        <div className="pointer-events-none absolute -right-32 bottom-0 h-72 w-72 rounded-full bg-blue-400/10 blur-3xl" />
+
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid items-center gap-16 lg:grid-cols-2">
+            {/* Left — Image */}
+            <MotionWrapper direction="left">
+              <div className="relative overflow-hidden rounded-2xl shadow-2xl shadow-blue-500/20">
+                <Image
+                  src="/images/how-it-works.jpg"
+                  alt="Team collaborating at an event"
+                  width={600}
+                  height={400}
+                  className="h-auto w-full object-cover"
+                />
+                <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10" />
+              </div>
+            </MotionWrapper>
+
+            {/* Right — Steps */}
+            <div>
+              <MotionWrapper direction="right">
+                <span className="inline-block rounded-full bg-blue-500/20 px-4 py-1 text-xs font-bold uppercase tracking-wider text-blue-300">
+                  How It Works
+                </span>
+                <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  Get Started in{" "}
+                  <span className="gradient-text-bold">3 Simple Steps</span>
+                </h2>
+              </MotionWrapper>
+
+              <div className="mt-10 space-y-8">
+                {steps.map((step, i) => (
+                  <MotionWrapper key={step.step} delay={i * 0.15} direction="right">
+                    <div className="group flex gap-5 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all duration-300 hover:border-blue-400/30 hover:bg-white/10">
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-400 text-white shadow-lg shadow-blue-500/25">
+                        {step.icon}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-blue-400">
+                            STEP {step.step}
+                          </span>
+                        </div>
+                        <h3 className="mt-1 text-lg font-bold text-white">
+                          {step.title}
+                        </h3>
+                        <p className="mt-2 text-sm font-medium leading-relaxed text-slate-400">
+                          {step.description}
+                        </p>
+                      </div>
+                    </div>
+                  </MotionWrapper>
+                ))}
+              </div>
             </div>
-          </MotionWrapper>
-
-          <div className="mt-16 grid gap-8 sm:grid-cols-3">
-            {steps.map((step, i) => (
-              <MotionWrapper key={step.step} delay={i * 0.15}>
-                <div className="relative rounded-2xl border border-border-light bg-white p-8 shadow-[var(--shadow-card)] transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)]">
-                  <span className="text-5xl font-black text-brand-100">
-                    {step.step}
-                  </span>
-                  <h3 className="mt-3 text-lg font-bold text-text-primary">
-                    {step.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-                    {step.description}
-                  </p>
-                </div>
-              </MotionWrapper>
-            ))}
           </div>
         </div>
       </section>
 
-      {/* ── Testimonials ──────────────────────────────── */}
-      <section className="bg-white py-20 sm:py-28">
+      {/* ── Testimonials ──────────────────────────────────── */}
+      <section className="bg-slate-50 py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <MotionWrapper>
             <div className="mx-auto max-w-2xl text-center">
-              <h2 className="text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
+              <span className="inline-block rounded-full bg-blue-100 px-4 py-1 text-xs font-bold uppercase tracking-wider text-blue-700">
+                Testimonials
+              </span>
+              <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 Loved by Teams Everywhere
               </h2>
-              <p className="mt-4 text-lg text-text-secondary">
-                See what our users have to say
+              <p className="mt-4 text-lg font-medium text-slate-600">
+                See what our users have to say about Sponsiwise
               </p>
             </div>
           </MotionWrapper>
@@ -246,24 +364,37 @@ export default function LandingPage() {
           <div className="mt-16 grid gap-8 sm:grid-cols-3">
             {testimonials.map((t, i) => (
               <MotionWrapper key={t.name} delay={i * 0.1}>
-                <div className="flex flex-col rounded-2xl border border-border-light bg-white p-8 shadow-[var(--shadow-card)] transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)]">
+                <div className="flex h-full flex-col rounded-2xl border-2 border-slate-100 bg-white p-8 shadow-lg transition-all duration-300 hover:-translate-y-2 hover:border-blue-200 hover:shadow-2xl hover:shadow-blue-500/10">
                   {/* Stars */}
                   <div className="flex gap-0.5">
                     {Array.from({ length: t.rating }).map((_, si) => (
                       <Star
                         key={si}
-                        className="h-4 w-4 fill-amber-400 text-amber-400"
+                        className="h-5 w-5 fill-amber-400 text-amber-400"
                       />
                     ))}
                   </div>
-                  <p className="mt-4 flex-1 text-sm leading-relaxed text-text-secondary">
+                  <p className="mt-5 flex-1 text-base font-medium leading-relaxed text-slate-700">
                     &ldquo;{t.quote}&rdquo;
                   </p>
-                  <div className="mt-6 border-t border-border-light pt-4">
-                    <p className="text-sm font-semibold text-text-primary">
-                      {t.name}
-                    </p>
-                    <p className="text-xs text-text-muted">{t.role}</p>
+                  <div className="mt-6 flex items-center gap-4 border-t-2 border-slate-100 pt-5">
+                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full ring-2 ring-blue-100">
+                      <Image
+                        src={t.avatar}
+                        alt={t.name}
+                        fill
+                        className="object-cover"
+                        sizes="48px"
+                      />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-slate-900">
+                        {t.name}
+                      </p>
+                      <p className="text-xs font-semibold text-slate-500">
+                        {t.role}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </MotionWrapper>
@@ -272,39 +403,75 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── CTA ───────────────────────────────────────── */}
-      <section className="py-20">
+      {/* ── Trusted By ───────────────────────────────────── */}
+      <section className="border-y-2 border-slate-100 bg-white py-14">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <MotionWrapper>
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-600 via-brand-500 to-brand-400 px-8 py-16 text-center shadow-2xl shadow-brand-500/25 sm:px-16 sm:py-20">
-              {/* Decorative shapes */}
-              <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/10" />
-              <div className="pointer-events-none absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-white/5" />
-              <div className="pointer-events-none absolute right-1/4 top-1/3 h-40 w-40 rounded-full bg-white/5" />
+            <p className="text-center text-sm font-bold uppercase tracking-widest text-slate-400">
+              Trusted by leading organizations
+            </p>
+          </MotionWrapper>
+          <MotionWrapper delay={0.1}>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-12 gap-y-6">
+              {trustedBrands.map((brand) => (
+                <span
+                  key={brand}
+                  className="text-xl font-black tracking-tight text-slate-300 transition-colors hover:text-blue-500"
+                >
+                  {brand}
+                </span>
+              ))}
+            </div>
+          </MotionWrapper>
+        </div>
+      </section>
 
-              <div className="relative">
-                <h2 className="text-3xl font-bold text-white sm:text-4xl">
-                  Ready to get started?
-                </h2>
-                <p className="mx-auto mt-4 max-w-lg text-lg text-blue-100/80">
-                  Create your free account and explore what Sponsiwise can do
-                  for you. No credit card required.
-                </p>
-                <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-                  <Link
-                    href="/register"
-                    className="group inline-flex items-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-bold text-brand-600 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-                  >
-                    Sign up for free
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                  </Link>
-                  <Link
-                    href="/events"
-                    className="inline-flex items-center gap-2 rounded-xl border-2 border-white/30 px-8 py-4 text-base font-semibold text-white transition-all duration-300 hover:-translate-y-1 hover:border-white/50 hover:bg-white/10"
-                  >
-                    Browse Events
-                  </Link>
-                </div>
+      {/* ── CTA — Bold Dark ──────────────────────────────── */}
+      <section className="section-dark relative overflow-hidden py-20 sm:py-28">
+        <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-blue-500/15 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-32 -left-32 h-80 w-80 rounded-full bg-blue-400/10 blur-3xl" />
+
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <MotionWrapper>
+            <div className="mx-auto max-w-3xl text-center">
+              <h2 className="text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">
+                Ready to Transform Your{" "}
+                <span className="gradient-text-bold">Sponsorships</span>?
+              </h2>
+              <p className="mx-auto mt-5 max-w-lg text-lg font-medium text-slate-400">
+                Create your free account and explore what Sponsiwise can do for
+                you. No credit card required.
+              </p>
+              <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+                <Link
+                  href="/register"
+                  className="group inline-flex items-center gap-2 rounded-xl bg-blue-600 px-10 py-4 text-base font-bold text-white shadow-lg shadow-blue-600/30 transition-all duration-300 hover:-translate-y-1 hover:bg-blue-500 hover:shadow-xl hover:shadow-blue-500/40"
+                >
+                  Sign up for free
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+                <Link
+                  href="/events"
+                  className="inline-flex items-center gap-2 rounded-xl border-2 border-white/20 px-10 py-4 text-base font-bold text-white transition-all duration-300 hover:-translate-y-1 hover:border-white/40 hover:bg-white/5"
+                >
+                  Browse Events
+                </Link>
+              </div>
+
+              {/* Trust checkmarks */}
+              <div className="mt-10 flex flex-wrap items-center justify-center gap-6 text-sm font-semibold text-slate-400">
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-400" /> Free
+                  forever plan
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-400" /> No
+                  credit card needed
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-400" /> Cancel
+                  anytime
+                </span>
               </div>
             </div>
           </MotionWrapper>

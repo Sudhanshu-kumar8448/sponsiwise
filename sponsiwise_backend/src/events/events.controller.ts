@@ -47,10 +47,7 @@ export class EventsController {
   @Post()
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
-  async create(
-    @Body() dto: CreateEventDto,
-    @CurrentUser() user: JwtPayloadWithClaims,
-  ) {
+  async create(@Body() dto: CreateEventDto, @CurrentUser() user: JwtPayloadWithClaims) {
     return this.eventService.create(dto, user.role, user.tenant_id);
   }
 
@@ -65,10 +62,7 @@ export class EventsController {
   @Get()
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.USER, Role.ADMIN, Role.SUPER_ADMIN)
-  async findAll(
-    @Query() query: ListEventsQueryDto,
-    @CurrentUser() user: JwtPayloadWithClaims,
-  ) {
+  async findAll(@Query() query: ListEventsQueryDto, @CurrentUser() user: JwtPayloadWithClaims) {
     return this.eventService.findAll(query, user.role, user.tenant_id);
   }
 

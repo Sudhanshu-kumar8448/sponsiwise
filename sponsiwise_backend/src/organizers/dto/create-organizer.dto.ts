@@ -1,11 +1,4 @@
-import {
-  IsString,
-  IsNotEmpty,
-  IsOptional,
-  IsEmail,
-  IsUrl,
-  MaxLength,
-} from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsEmail, IsUrl, MaxLength } from 'class-validator';
 
 /**
  * DTO for creating a new organizer within a tenant.

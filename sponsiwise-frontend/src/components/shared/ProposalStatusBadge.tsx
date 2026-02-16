@@ -6,27 +6,27 @@ const statusConfig: Record<
 > = {
   draft: {
     label: "Draft",
-    className: "bg-gray-100 text-gray-700",
+    className: "bg-slate-500/10 text-slate-400",
   },
   submitted: {
     label: "Submitted",
-    className: "bg-blue-100 text-blue-600",
+    className: "bg-blue-500/10 text-blue-400",
   },
   under_review: {
     label: "Under Review",
-    className: "bg-yellow-100 text-yellow-800",
+    className: "bg-amber-500/10 text-amber-400",
   },
   approved: {
     label: "Approved",
-    className: "bg-green-100 text-green-700",
+    className: "bg-emerald-500/10 text-emerald-400",
   },
   rejected: {
     label: "Rejected",
-    className: "bg-red-100 text-red-700",
+    className: "bg-red-500/10 text-red-400",
   },
   withdrawn: {
     label: "Withdrawn",
-    className: "bg-gray-100 text-gray-500",
+    className: "bg-slate-500/10 text-slate-500",
   },
 };
 
@@ -43,7 +43,7 @@ export default function ProposalStatusBadge({
 }: ProposalStatusBadgeProps) {
   const config = statusConfig[status] ?? {
     label: status,
-    className: "bg-gray-100 text-gray-600",
+    className: "bg-slate-500/10 text-slate-400",
   };
 
   return (

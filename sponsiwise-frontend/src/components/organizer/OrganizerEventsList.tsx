@@ -1,24 +1,25 @@
 import Link from "next/link";
+import { Calendar, MapPin, ChevronLeft, ChevronRight, Eye, FileText } from "lucide-react";
 import { fetchOrganizerEvents } from "@/lib/organizer-api";
 import type { OrganizerEvent } from "@/lib/types/organizer";
 
 // ─── Event status badge ────────────────────────────────────────────────
 
 const eventStatusConfig: Record<string, { label: string; className: string }> =
-  {
-    draft: { label: "Draft", className: "bg-gray-100 text-gray-700" },
-    published: { label: "Published", className: "bg-green-100 text-green-700" },
-    cancelled: { label: "Cancelled", className: "bg-red-100 text-red-700" },
-    completed: {
-      label: "Completed",
-      className: "bg-blue-100 text-blue-700",
-    },
-  };
+{
+  draft: { label: "Draft", className: "bg-slate-500/10 text-slate-400" },
+  published: { label: "Published", className: "bg-emerald-500/10 text-emerald-400" },
+  cancelled: { label: "Cancelled", className: "bg-red-500/10 text-red-400" },
+  completed: {
+    label: "Completed",
+    className: "bg-blue-500/10 text-blue-400",
+  },
+};
 
 function EventStatusBadge({ status }: { status: string }) {
   const config = eventStatusConfig[status] ?? {
     label: status,
-    className: "bg-gray-100 text-gray-600",
+    className: "bg-slate-500/10 text-slate-400",
   };
   return (
     <span
@@ -33,9 +34,9 @@ function EventStatusBadge({ status }: { status: string }) {
 
 function OrganizerEventCard({ event }: { event: OrganizerEvent }) {
   return (
-    <div className="flex flex-col overflow-hidden rounded-xl bg-white shadow transition-shadow hover:shadow-md">
+    <div className="flex flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 transition-all hover:border-slate-700 hover:shadow-lg hover:shadow-blue-500/5">
       {/* Image / placeholder */}
-      <div className="aspect-[16/9] w-full bg-gray-200">
+      <div className="aspect-[16/9] w-full bg-slate-800">
         {event.image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -44,8 +45,8 @@ function OrganizerEventCard({ event }: { event: OrganizerEvent }) {
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-gray-400">
-            <span className="text-3xl">📅</span>
+          <div className="flex h-full items-center justify-center">
+            <Calendar className="h-8 w-8 text-slate-600" />
           </div>
         )}
       </div>
@@ -54,21 +55,23 @@ function OrganizerEventCard({ event }: { event: OrganizerEvent }) {
         <div className="mb-2 flex items-center gap-2">
           <EventStatusBadge status={event.status} />
           {event.category && (
-            <span className="inline-block rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700">
+            <span className="inline-block rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-400">
               {event.category}
             </span>
           )}
         </div>
 
-        <h3 className="text-lg font-semibold text-gray-900">{event.title}</h3>
-        <p className="mt-1 line-clamp-2 text-sm text-gray-600">
+        <h3 className="text-lg font-semibold text-white">{event.title}</h3>
+        <p className="mt-1 line-clamp-2 text-sm text-slate-400">
           {event.description}
         </p>
 
-        <div className="mt-auto pt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
-          <span>📍 {event.location}</span>
-          <span>
-            🗓{" "}
+        <div className="mt-auto pt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+          <span className="inline-flex items-center gap-1">
+            <MapPin className="h-3 w-3" /> {event.location}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <Calendar className="h-3 w-3" />
             {new Date(event.start_date).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
@@ -78,22 +81,22 @@ function OrganizerEventCard({ event }: { event: OrganizerEvent }) {
         </div>
 
         {/* Proposal summary */}
-        <div className="mt-3 grid grid-cols-3 gap-2 border-t border-gray-100 pt-3 text-center">
+        <div className="mt-3 grid grid-cols-3 gap-2 border-t border-slate-800 pt-3 text-center">
           <div>
-            <p className="text-xs text-gray-500">Proposals</p>
-            <p className="text-sm font-bold text-gray-900">
+            <p className="text-xs text-slate-500">Proposals</p>
+            <p className="text-sm font-bold text-white">
               {event.total_proposals}
             </p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Pending</p>
-            <p className="text-sm font-bold text-yellow-600">
+            <p className="text-xs text-slate-500">Pending</p>
+            <p className="text-sm font-bold text-amber-400">
               {event.pending_proposals}
             </p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Revenue</p>
-            <p className="text-sm font-bold text-green-600">
+            <p className="text-xs text-slate-500">Revenue</p>
+            <p className="text-sm font-bold text-emerald-400">
               {event.currency} {event.total_sponsorship_amount.toLocaleString()}
             </p>
           </div>
@@ -102,15 +105,15 @@ function OrganizerEventCard({ event }: { event: OrganizerEvent }) {
         <div className="mt-3 flex gap-2">
           <Link
             href={`/dashboard/events/${event.id}`}
-            className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="inline-flex items-center gap-1 rounded-xl border border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-slate-600 hover:bg-slate-800 hover:text-white transition-all"
           >
-            View details
+            <Eye className="h-3 w-3" /> View details
           </Link>
           <Link
             href={`/dashboard/proposals?event_id=${event.id}`}
-            className="rounded-md bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 transition-colors"
+            className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 px-3 py-1.5 text-xs font-medium text-white shadow-lg shadow-blue-500/20 hover:shadow-xl transition-all"
           >
-            View proposals
+            <FileText className="h-3 w-3" /> Proposals
           </Link>
         </div>
       </div>
@@ -122,12 +125,12 @@ function OrganizerEventCard({ event }: { event: OrganizerEvent }) {
 
 function EmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
-      <span className="text-5xl">📅</span>
-      <h2 className="mt-4 text-lg font-semibold text-gray-900">
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 py-20 text-center">
+      <Calendar className="h-12 w-12 text-slate-600" />
+      <h2 className="mt-4 text-lg font-semibold text-white">
         No events yet
       </h2>
-      <p className="mt-1 text-sm text-gray-500">
+      <p className="mt-1 text-sm text-slate-400">
         You haven&apos;t created any events. Get started by creating your first
         event.
       </p>
@@ -137,12 +140,12 @@ function EmptyState() {
 
 function ErrorState({ message }: { message: string }) {
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-red-500/20 bg-red-500/10 py-20 text-center">
       <span className="text-5xl">⚠️</span>
-      <h2 className="mt-4 text-lg font-semibold text-gray-900">
+      <h2 className="mt-4 text-lg font-semibold text-white">
         Something went wrong
       </h2>
-      <p className="mt-1 text-sm text-gray-500">{message}</p>
+      <p className="mt-1 text-sm text-red-300">{message}</p>
     </div>
   );
 }
@@ -197,8 +200,8 @@ export default async function OrganizerEventsList({
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">My Events</h1>
-        <p className="mt-1 text-sm text-gray-600">
+        <h1 className="text-2xl font-bold text-white">My Events</h1>
+        <p className="mt-1 text-sm text-slate-400">
           Manage your events and track sponsorship activity.
         </p>
       </div>
@@ -206,12 +209,12 @@ export default async function OrganizerEventsList({
       {/* Search + filters */}
       <form
         method="GET"
-        className="flex flex-wrap items-end gap-4 rounded-xl bg-white p-4 shadow"
+        className="flex flex-wrap items-end gap-4 rounded-2xl border border-slate-800 bg-slate-900 p-4"
       >
         <div className="flex-1 min-w-[200px]">
           <label
             htmlFor="search"
-            className="mb-1 block text-xs font-medium text-gray-700"
+            className="mb-1 block text-xs font-medium text-slate-400"
           >
             Search
           </label>
@@ -221,14 +224,14 @@ export default async function OrganizerEventsList({
             type="text"
             defaultValue={search ?? ""}
             placeholder="Event name or keyword…"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
 
         <div className="min-w-[160px]">
           <label
             htmlFor="status"
-            className="mb-1 block text-xs font-medium text-gray-700"
+            className="mb-1 block text-xs font-medium text-slate-400"
           >
             Status
           </label>
@@ -236,7 +239,7 @@ export default async function OrganizerEventsList({
             id="status"
             name="status"
             defaultValue={statusFilter}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           >
             {statusFilters.map((f) => (
               <option key={f.value} value={f.value}>
@@ -248,7 +251,7 @@ export default async function OrganizerEventsList({
 
         <button
           type="submit"
-          className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors"
+          className="rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 px-5 py-2 text-sm font-medium text-white shadow-lg shadow-blue-500/20 hover:shadow-xl transition-all"
         >
           Search
         </button>
@@ -261,7 +264,7 @@ export default async function OrganizerEventsList({
         <EmptyState />
       ) : (
         <>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-slate-500">
             Showing {events.length} of {total} event
             {total !== 1 ? "s" : ""}
           </p>
@@ -278,17 +281,17 @@ export default async function OrganizerEventsList({
               {page > 1 && (
                 <Link
                   href={`/dashboard/events?page=${page - 1}${statusFilter ? `&status=${statusFilter}` : ""}${search ? `&search=${search}` : ""}`}
-                  className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="inline-flex items-center gap-1 rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-300 hover:border-slate-600 hover:bg-slate-800 hover:text-white transition-all"
                 >
-                  ← Previous
+                  <ChevronLeft className="h-4 w-4" /> Previous
                 </Link>
               )}
               {page * 12 < total && (
                 <Link
                   href={`/dashboard/events?page=${page + 1}${statusFilter ? `&status=${statusFilter}` : ""}${search ? `&search=${search}` : ""}`}
-                  className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="inline-flex items-center gap-1 rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-300 hover:border-slate-600 hover:bg-slate-800 hover:text-white transition-all"
                 >
-                  Next →
+                  Next <ChevronRight className="h-4 w-4" />
                 </Link>
               )}
             </div>

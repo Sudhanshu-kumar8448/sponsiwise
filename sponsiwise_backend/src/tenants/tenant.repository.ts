@@ -55,10 +55,7 @@ export class TenantRepository {
   /**
    * Update mutable fields (name, status) of an existing tenant.
    */
-  async update(
-    id: string,
-    data: Prisma.TenantUpdateInput,
-  ): Promise<Tenant> {
+  async update(id: string, data: Prisma.TenantUpdateInput): Promise<Tenant> {
     return this.prisma.tenant.update({
       where: { id },
       data,

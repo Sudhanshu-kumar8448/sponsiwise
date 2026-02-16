@@ -4,7 +4,8 @@ import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { apiClient, ApiError } from "@/lib/api-client";
-import { Mail, Lock, Sparkles } from "lucide-react";
+import { Mail, Lock } from "lucide-react";
+import Image from "next/image";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -43,7 +44,7 @@ export default function LoginPage() {
 
           <div className="relative text-center">
             <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm">
-              <Sparkles className="h-8 w-8 text-white" />
+              <Image src="/images/logo-icon.svg" alt="SponsiWise" width={40} height={40} />
             </div>
             <h2 className="text-3xl font-bold">Welcome Back</h2>
             <p className="mt-3 text-base text-blue-100/80 leading-relaxed">

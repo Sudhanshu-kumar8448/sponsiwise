@@ -12,7 +12,7 @@ import { PrismaService } from '../common/providers/prisma.service';
  * Uses PrismaService directly for cross-entity aggregation queries.
  */
 @Module({
-    controllers: [CompanyLifecycleController],
-    providers: [CompanyLifecycleService, PrismaService],
+  controllers: [CompanyLifecycleController],
+  providers: [CompanyLifecycleService, PrismaService],
 })
-export class CompanyLifecycleModule { }
+export class CompanyLifecycleModule {}

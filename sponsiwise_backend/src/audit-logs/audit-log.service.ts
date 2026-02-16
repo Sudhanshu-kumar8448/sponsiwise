@@ -88,10 +88,7 @@ export class AuditLogService {
   /**
    * Get the full audit history of a single entity.
    */
-  async getEntityHistory(
-    entityType: string,
-    entityId: string,
-  ): Promise<AuditLog[]> {
+  async getEntityHistory(entityType: string, entityId: string): Promise<AuditLog[]> {
     return this.auditLogRepository.findByEntity(entityType, entityId);
   }
 }

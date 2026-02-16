@@ -6,15 +6,15 @@ const statusConfig: Record<
 > = {
   pending: {
     label: "Pending",
-    className: "bg-yellow-100 text-yellow-800",
+    className: "bg-amber-500/10 text-amber-400",
   },
   verified: {
     label: "Verified",
-    className: "bg-green-100 text-green-700",
+    className: "bg-emerald-500/10 text-emerald-400",
   },
   rejected: {
     label: "Rejected",
-    className: "bg-red-100 text-red-700",
+    className: "bg-red-500/10 text-red-400",
   },
 };
 
@@ -31,7 +31,7 @@ export default function VerificationStatusBadge({
 }: VerificationStatusBadgeProps) {
   const config = statusConfig[status] ?? {
     label: status,
-    className: "bg-gray-100 text-gray-600",
+    className: "bg-slate-500/10 text-slate-400",
   };
 
   return (

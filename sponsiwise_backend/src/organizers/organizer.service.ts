@@ -1,16 +1,8 @@
-import {
-  Injectable,
-  NotFoundException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import type { Organizer } from '@prisma/client';
 import { Role } from '@prisma/client';
 import { OrganizerRepository } from './organizer.repository';
-import {
-  CreateOrganizerDto,
-  UpdateOrganizerDto,
-  ListOrganizersQueryDto,
-} from './dto';
+import { CreateOrganizerDto, UpdateOrganizerDto, ListOrganizersQueryDto } from './dto';
 
 /**
  * OrganizerService — business logic for organizer management.
@@ -45,9 +37,7 @@ export class OrganizerService {
     // ADMIN always creates in their own tenant.
     // SUPER_ADMIN can optionally target a different tenant.
     const tenantId =
-      callerRole === Role.SUPER_ADMIN && tenantIdOverride
-        ? tenantIdOverride
-        : callerTenantId;
+      callerRole === Role.SUPER_ADMIN && tenantIdOverride ? tenantIdOverride : callerTenantId;
 
     const organizer = await this.organizerRepository.create({
       name: dto.name,
@@ -63,9 +53,7 @@ export class OrganizerService {
       tenant: { connect: { id: tenantId } },
     });
 
-    this.logger.log(
-      `Organizer ${organizer.id} created by ${callerRole} in tenant ${tenantId}`,
-    );
+    this.logger.log(`Organizer ${organizer.id} created by ${callerRole} in tenant ${tenantId}`);
     return organizer;
   }
 
@@ -86,10 +74,7 @@ export class OrganizerService {
     if (callerRole === Role.SUPER_ADMIN) {
       organizer = await this.organizerRepository.findById(organizerId);
     } else {
-      organizer = await this.organizerRepository.findByIdAndTenant(
-        organizerId,
-        callerTenantId,
-      );
+      organizer = await this.organizerRepository.findByIdAndTenant(organizerId, callerTenantId);
     }
 
     if (!organizer) {
@@ -171,10 +156,7 @@ export class OrganizerService {
     let organizer: Organizer;
 
     if (callerRole === Role.SUPER_ADMIN) {
-      organizer = await this.organizerRepository.updateById(
-        organizerId,
-        data,
-      );
+      organizer = await this.organizerRepository.updateById(organizerId, data);
     } else {
       organizer = await this.organizerRepository.updateByIdAndTenant(
         organizerId,

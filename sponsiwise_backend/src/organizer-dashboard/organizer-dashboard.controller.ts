@@ -13,11 +13,7 @@ import { AuthGuard, RoleGuard } from '../common/guards';
 import { Roles, CurrentUser } from '../common/decorators';
 import type { JwtPayloadWithClaims } from '../auth/interfaces';
 import { OrganizerDashboardService } from './organizer-dashboard.service';
-import {
-  OrganizerEventsQueryDto,
-  OrganizerProposalsQueryDto,
-  ReviewProposalDto,
-} from './dto';
+import { OrganizerEventsQueryDto, OrganizerProposalsQueryDto, ReviewProposalDto } from './dto';
 
 /**
  * OrganizerDashboardController — authenticated endpoints for the Organizer dashboard.
@@ -32,9 +28,7 @@ import {
 @UseGuards(AuthGuard, RoleGuard)
 @Roles(Role.ORGANIZER)
 export class OrganizerDashboardController {
-  constructor(
-    private readonly organizerDashboardService: OrganizerDashboardService,
-  ) {}
+  constructor(private readonly organizerDashboardService: OrganizerDashboardService) {}
 
   /**
    * GET /organizer/dashboard/stats
@@ -43,10 +37,7 @@ export class OrganizerDashboardController {
    */
   @Get('dashboard/stats')
   async getDashboardStats(@CurrentUser() user: JwtPayloadWithClaims) {
-    return this.organizerDashboardService.getDashboardStats(
-      user.tenant_id,
-      user.organizer_id,
-    );
+    return this.organizerDashboardService.getDashboardStats(user.tenant_id, user.organizer_id);
   }
 
   /**
@@ -59,11 +50,7 @@ export class OrganizerDashboardController {
     @Query() query: OrganizerEventsQueryDto,
     @CurrentUser() user: JwtPayloadWithClaims,
   ) {
-    return this.organizerDashboardService.getEvents(
-      user.tenant_id,
-      user.organizer_id,
-      query,
-    );
+    return this.organizerDashboardService.getEvents(user.tenant_id, user.organizer_id, query);
   }
 
   /**
@@ -76,11 +63,7 @@ export class OrganizerDashboardController {
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: JwtPayloadWithClaims,
   ) {
-    return this.organizerDashboardService.getEventById(
-      id,
-      user.tenant_id,
-      user.organizer_id,
-    );
+    return this.organizerDashboardService.getEventById(id, user.tenant_id, user.organizer_id);
   }
 
   /**
@@ -93,11 +76,7 @@ export class OrganizerDashboardController {
     @Query() query: OrganizerProposalsQueryDto,
     @CurrentUser() user: JwtPayloadWithClaims,
   ) {
-    return this.organizerDashboardService.getProposals(
-      user.tenant_id,
-      user.organizer_id,
-      query,
-    );
+    return this.organizerDashboardService.getProposals(user.tenant_id, user.organizer_id, query);
   }
 
   /**
@@ -110,11 +89,7 @@ export class OrganizerDashboardController {
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: JwtPayloadWithClaims,
   ) {
-    return this.organizerDashboardService.getProposalById(
-      id,
-      user.tenant_id,
-      user.organizer_id,
-    );
+    return this.organizerDashboardService.getProposalById(id, user.tenant_id, user.organizer_id);
   }
 
   /**

@@ -42,7 +42,7 @@ export class EventService {
     private readonly auditLogService: AuditLogService,
     private readonly eventEmitter: EventEmitter2,
     private readonly cacheService: CacheService,
-  ) { }
+  ) {}
 
   // ─── CREATE ──────────────────────────────────────────────
 
@@ -53,11 +53,7 @@ export class EventService {
    *
    * The tenantId is always derived from the Organizer to prevent mismatch.
    */
-  async create(
-    dto: CreateEventDto,
-    callerRole: Role,
-    callerTenantId: string,
-  ): Promise<Event> {
+  async create(dto: CreateEventDto, callerRole: Role, callerTenantId: string): Promise<Event> {
     // Validate the organizer exists and is within the caller's tenant
     const organizer = await this.resolveAndValidateOrganizer(
       dto.organizerId,
@@ -100,20 +96,13 @@ export class EventService {
    * - USER / ADMIN: must be within their own tenant
    * - SUPER_ADMIN: any tenant
    */
-  async findById(
-    eventId: string,
-    callerRole: Role,
-    callerTenantId: string,
-  ): Promise<Event> {
+  async findById(eventId: string, callerRole: Role, callerTenantId: string): Promise<Event> {
     let event: Event | null;
 
     if (callerRole === Role.SUPER_ADMIN) {
       event = await this.eventRepository.findById(eventId);
     } else {
-      event = await this.eventRepository.findByIdAndTenant(
-        eventId,
-        callerTenantId,
-      );
+      event = await this.eventRepository.findByIdAndTenant(eventId, callerTenantId);
     }
 
     if (!event) {
@@ -145,8 +134,11 @@ export class EventService {
     // Build a deterministic cache key from query params
     const scope = callerRole === Role.SUPER_ADMIN ? 'global' : `tenant:${callerTenantId}`;
     const cacheKey = CacheService.key(
-      'events', 'list', scope,
-      `p${page}`, `l${limit}`,
+      'events',
+      'list',
+      scope,
+      `p${page}`,
+      `l${limit}`,
       `s${query.status ?? 'any'}`,
       `o${query.organizerId ?? 'any'}`,
       `a${query.isActive ?? 'any'}`,
@@ -227,16 +219,10 @@ export class EventService {
     if (callerRole === Role.SUPER_ADMIN) {
       event = await this.eventRepository.updateById(eventId, data);
     } else {
-      event = await this.eventRepository.updateByIdAndTenant(
-        eventId,
-        callerTenantId,
-        data,
-      );
+      event = await this.eventRepository.updateByIdAndTenant(eventId, callerTenantId, data);
     }
 
-    this.logger.log(
-      `Event ${eventId} updated by ${callerRole} (tenant: ${callerTenantId})`,
-    );
+    this.logger.log(`Event ${eventId} updated by ${callerRole} (tenant: ${callerTenantId})`);
 
     // Invalidate event list caches
     this.cacheService.delByPattern('events:list:*');
@@ -266,13 +252,8 @@ export class EventService {
     }
 
     // For non-super-admins, the organizer MUST belong to the caller's tenant
-    if (
-      callerRole !== Role.SUPER_ADMIN &&
-      organizer.tenantId !== callerTenantId
-    ) {
-      throw new ForbiddenException(
-        'Cannot create events for an organizer outside your tenant',
-      );
+    if (callerRole !== Role.SUPER_ADMIN && organizer.tenantId !== callerTenantId) {
+      throw new ForbiddenException('Cannot create events for an organizer outside your tenant');
     }
 
     return organizer;
@@ -311,7 +292,9 @@ export class EventService {
     const event =
       reviewerRole === Role.SUPER_ADMIN
         ? await this.eventRepository.updateById(eventId, { isActive: true })
-        : await this.eventRepository.updateByIdAndTenant(eventId, reviewerTenantId, { isActive: true });
+        : await this.eventRepository.updateByIdAndTenant(eventId, reviewerTenantId, {
+            isActive: true,
+          });
 
     this.logger.log(
       `Event ${eventId} verified by ${reviewerRole}:${reviewerId} (tenant: ${existing.tenantId})`,
@@ -368,7 +351,9 @@ export class EventService {
     const event =
       reviewerRole === Role.SUPER_ADMIN
         ? await this.eventRepository.updateById(eventId, { isActive: false })
-        : await this.eventRepository.updateByIdAndTenant(eventId, reviewerTenantId, { isActive: false });
+        : await this.eventRepository.updateByIdAndTenant(eventId, reviewerTenantId, {
+            isActive: false,
+          });
 
     this.logger.log(
       `Event ${eventId} rejected by ${reviewerRole}:${reviewerId} (tenant: ${existing.tenantId})`,

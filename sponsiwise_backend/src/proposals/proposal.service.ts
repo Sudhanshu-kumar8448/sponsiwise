@@ -18,11 +18,7 @@ import {
   ProposalStatusChangedEvent,
   PROPOSAL_STATUS_CHANGED_EVENT,
 } from './events';
-import {
-  CreateProposalDto,
-  UpdateProposalDto,
-  ListProposalsQueryDto,
-} from './dto';
+import { CreateProposalDto, UpdateProposalDto, ListProposalsQueryDto } from './dto';
 
 /**
  * ProposalService — business logic for proposal management.
@@ -74,10 +70,7 @@ export class ProposalService {
     const tenantId = sponsorship.tenantId;
 
     // 3. Set submittedAt if status is SUBMITTED or beyond
-    const submittedAt =
-      dto.status && dto.status !== ProposalStatus.DRAFT
-        ? new Date()
-        : undefined;
+    const submittedAt = dto.status && dto.status !== ProposalStatus.DRAFT ? new Date() : undefined;
 
     const proposal = await this.proposalRepository.create({
       ...(dto.status !== undefined && { status: dto.status }),
@@ -138,20 +131,13 @@ export class ProposalService {
    * - USER / ADMIN: must be within their own tenant
    * - SUPER_ADMIN: any tenant
    */
-  async findById(
-    proposalId: string,
-    callerRole: Role,
-    callerTenantId: string,
-  ): Promise<Proposal> {
+  async findById(proposalId: string, callerRole: Role, callerTenantId: string): Promise<Proposal> {
     let proposal: Proposal | null;
 
     if (callerRole === Role.SUPER_ADMIN) {
       proposal = await this.proposalRepository.findById(proposalId);
     } else {
-      proposal = await this.proposalRepository.findByIdAndTenant(
-        proposalId,
-        callerTenantId,
-      );
+      proposal = await this.proposalRepository.findByIdAndTenant(proposalId, callerTenantId);
     }
 
     if (!proposal) {
@@ -183,8 +169,11 @@ export class ProposalService {
     // Build a deterministic cache key from query params
     const scope = callerRole === Role.SUPER_ADMIN ? 'global' : `tenant:${callerTenantId}`;
     const cacheKey = CacheService.key(
-      'proposals', 'list', scope,
-      `p${page}`, `l${limit}`,
+      'proposals',
+      'list',
+      scope,
+      `p${page}`,
+      `l${limit}`,
       `s${query.status ?? 'any'}`,
       `sp${query.sponsorshipId ?? 'any'}`,
       `a${query.isActive ?? 'any'}`,
@@ -240,11 +229,7 @@ export class ProposalService {
     callerTenantId: string,
   ): Promise<Proposal> {
     // Ensure the proposal exists and is within the caller's tenant
-    const existing = await this.findById(
-      proposalId,
-      callerRole,
-      callerTenantId,
-    );
+    const existing = await this.findById(proposalId, callerRole, callerTenantId);
 
     // Validate status transition if status is being changed
     if (dto.status !== undefined) {
@@ -256,10 +241,7 @@ export class ProposalService {
     if (dto.status === ProposalStatus.SUBMITTED && !existing.submittedAt) {
       timestampUpdates.submittedAt = new Date();
     }
-    if (
-      dto.status === ProposalStatus.APPROVED ||
-      dto.status === ProposalStatus.REJECTED
-    ) {
+    if (dto.status === ProposalStatus.APPROVED || dto.status === ProposalStatus.REJECTED) {
       timestampUpdates.reviewedAt = new Date();
     }
 
@@ -287,9 +269,7 @@ export class ProposalService {
       );
     }
 
-    this.logger.log(
-      `Proposal ${proposalId} updated by ${callerRole} (tenant: ${callerTenantId})`,
-    );
+    this.logger.log(`Proposal ${proposalId} updated by ${callerRole} (tenant: ${callerTenantId})`);
 
     // Fire-and-forget audit log — never blocks the response
     this.auditLogService.log({
@@ -342,8 +322,7 @@ export class ProposalService {
     callerRole: Role,
     callerTenantId: string,
   ) {
-    const sponsorship =
-      await this.sponsorshipRepository.findById(sponsorshipId);
+    const sponsorship = await this.sponsorshipRepository.findById(sponsorshipId);
 
     if (!sponsorship) {
       throw new NotFoundException('Sponsorship not found');
@@ -372,23 +351,14 @@ export class ProposalService {
    *  REJECTED     → (terminal — no further transitions)
    *  WITHDRAWN    → (terminal — no further transitions)
    */
-  private validateStatusTransition(
-    currentStatus: ProposalStatus,
-    newStatus: ProposalStatus,
-  ): void {
+  private validateStatusTransition(currentStatus: ProposalStatus, newStatus: ProposalStatus): void {
     if (currentStatus === newStatus) {
       return; // No-op transition is always allowed
     }
 
     const allowedTransitions: Record<ProposalStatus, ProposalStatus[]> = {
-      [ProposalStatus.DRAFT]: [
-        ProposalStatus.SUBMITTED,
-        ProposalStatus.WITHDRAWN,
-      ],
-      [ProposalStatus.SUBMITTED]: [
-        ProposalStatus.UNDER_REVIEW,
-        ProposalStatus.WITHDRAWN,
-      ],
+      [ProposalStatus.DRAFT]: [ProposalStatus.SUBMITTED, ProposalStatus.WITHDRAWN],
+      [ProposalStatus.SUBMITTED]: [ProposalStatus.UNDER_REVIEW, ProposalStatus.WITHDRAWN],
       [ProposalStatus.UNDER_REVIEW]: [
         ProposalStatus.APPROVED,
         ProposalStatus.REJECTED,

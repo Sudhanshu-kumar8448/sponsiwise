@@ -1,9 +1,4 @@
-import {
-  IsString,
-  IsOptional,
-  MaxLength,
-  IsEnum,
-} from 'class-validator';
+import { IsString, IsOptional, MaxLength, IsEnum } from 'class-validator';
 import { TenantStatus } from '@prisma/client';
 
 /**

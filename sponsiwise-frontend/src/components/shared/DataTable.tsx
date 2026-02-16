@@ -34,7 +34,7 @@ interface DataTableProps<T> {
  *
  * - Server Component safe (no state, no effects)
  * - Zero business logic — all data & column config via props
- * - Consistent styling that mirrors every dashboard table
+ * - Dark theme consistent with dashboard redesign
  */
 export default function DataTable<T>({
   columns,
@@ -43,16 +43,15 @@ export default function DataTable<T>({
   rowHref,
 }: DataTableProps<T>) {
   return (
-    <div className="overflow-x-auto rounded-xl bg-white shadow-md">
-      <table className="min-w-full divide-y divide-slate-200">
-        <thead className="bg-slate-50">
+    <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900">
+      <table className="min-w-full divide-y divide-slate-800">
+        <thead className="bg-slate-800/50">
           <tr>
             {columns.map((col) => (
               <th
                 key={col.key}
-                className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 ${
-                  col.hideOnMobile ? "hidden sm:table-cell" : ""
-                } ${col.className ?? ""}`}
+                className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500 ${col.hideOnMobile ? "hidden sm:table-cell" : ""
+                  } ${col.className ?? ""}`}
               >
                 {col.header}
               </th>
@@ -60,7 +59,7 @@ export default function DataTable<T>({
           </tr>
         </thead>
 
-        <tbody className="divide-y divide-gray-200">
+        <tbody className="divide-y divide-slate-800">
           {data.map((row) => {
             const key = rowKey(row);
             const href = rowHref?.(row);
@@ -68,14 +67,13 @@ export default function DataTable<T>({
             return (
               <tr
                 key={key}
-                className="transition-colors hover:bg-slate-50"
+                className="transition-colors hover:bg-slate-800/50"
               >
                 {columns.map((col) => (
                   <td
                     key={col.key}
-                    className={`px-6 py-4 ${
-                      col.hideOnMobile ? "hidden sm:table-cell" : ""
-                    } ${col.className ?? ""}`}
+                    className={`px-6 py-4 ${col.hideOnMobile ? "hidden sm:table-cell" : ""
+                      } ${col.className ?? ""}`}
                   >
                     {/* If the row is linkable, wrap the first column */}
                     {href && col.key === columns[0].key ? (

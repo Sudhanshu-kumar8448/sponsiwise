@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  ConflictException,
-  NotFoundException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException, Logger } from '@nestjs/common';
 import type { Tenant } from '@prisma/client';
 import { TenantRepository } from './tenant.repository';
 import { CreateTenantDto, UpdateTenantDto } from './dto';
@@ -30,9 +25,7 @@ export class TenantService {
     const existing = await this.tenantRepository.findBySlug(dto.slug);
 
     if (existing) {
-      throw new ConflictException(
-        `Tenant with slug "${dto.slug}" already exists`,
-      );
+      throw new ConflictException(`Tenant with slug "${dto.slug}" already exists`);
     }
 
     const tenant = await this.tenantRepository.create({
@@ -73,7 +66,10 @@ export class TenantService {
   /**
    * List all tenants with pagination.
    */
-  async findAll(page = 1, limit = 20): Promise<{
+  async findAll(
+    page = 1,
+    limit = 20,
+  ): Promise<{
     data: Tenant[];
     total: number;
     page: number;

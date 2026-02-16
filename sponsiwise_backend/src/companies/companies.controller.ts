@@ -48,12 +48,7 @@ export class CompaniesController {
     @CurrentUser() user: JwtPayloadWithClaims,
     @Query('tenantId') tenantIdOverride?: string,
   ) {
-    return this.companyService.create(
-      dto,
-      user.role,
-      user.tenant_id,
-      tenantIdOverride,
-    );
+    return this.companyService.create(dto, user.role, user.tenant_id, tenantIdOverride);
   }
 
   // ─── READ ────────────────────────────────────────────────
@@ -67,10 +62,7 @@ export class CompaniesController {
   @Get()
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.USER, Role.ADMIN, Role.SUPER_ADMIN)
-  async findAll(
-    @Query() query: ListCompaniesQueryDto,
-    @CurrentUser() user: JwtPayloadWithClaims,
-  ) {
+  async findAll(@Query() query: ListCompaniesQueryDto, @CurrentUser() user: JwtPayloadWithClaims) {
     return this.companyService.findAll(query, user.role, user.tenant_id);
   }
 

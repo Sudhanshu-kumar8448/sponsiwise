@@ -1,11 +1,4 @@
-import {
-  IsString,
-  IsOptional,
-  IsEmail,
-  IsUrl,
-  IsBoolean,
-  MaxLength,
-} from 'class-validator';
+import { IsString, IsOptional, IsEmail, IsUrl, IsBoolean, MaxLength } from 'class-validator';
 
 /**
  * DTO for updating an existing organizer.

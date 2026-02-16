@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 // ─── Props ─────────────────────────────────────────────────────────────
 
@@ -37,9 +38,9 @@ export default function Pagination({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-between rounded-xl bg-white px-6 py-3 shadow">
+    <div className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-900 px-6 py-3">
       {showPageLabel ? (
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-slate-400">
           Page {page} of {totalPages}
         </p>
       ) : (
@@ -50,17 +51,17 @@ export default function Pagination({
         {page > 1 && (
           <Link
             href={buildHref(page - 1)}
-            className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="inline-flex items-center gap-1 rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-300 transition-all hover:border-slate-600 hover:bg-slate-800 hover:text-white"
           >
-            ← Previous
+            <ChevronLeft className="h-4 w-4" /> Previous
           </Link>
         )}
         {page < totalPages && (
           <Link
             href={buildHref(page + 1)}
-            className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="inline-flex items-center gap-1 rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-300 transition-all hover:border-slate-600 hover:bg-slate-800 hover:text-white"
           >
-            Next →
+            Next <ChevronRight className="h-4 w-4" />
           </Link>
         )}
       </div>

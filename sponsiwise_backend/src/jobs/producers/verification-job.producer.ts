@@ -24,10 +24,7 @@ import {
   JOB_NOTIFY_EVENT_VERIFIED,
   JOB_NOTIFY_EVENT_REJECTED,
 } from '../constants';
-import type {
-  VerificationEmailPayload,
-  VerificationNotificationPayload,
-} from '../constants';
+import type { VerificationEmailPayload, VerificationNotificationPayload } from '../constants';
 
 /**
  * Default job options for verification jobs.
@@ -82,22 +79,14 @@ export class VerificationJobProducer {
 
   @OnEvent(EVENT_VERIFIED_EVENT)
   async onEventVerified(event: EventVerifiedEvent): Promise<void> {
-    await this.enqueueVerificationJobs(
-      event,
-      JOB_EMAIL_EVENT_VERIFIED,
-      JOB_NOTIFY_EVENT_VERIFIED,
-    );
+    await this.enqueueVerificationJobs(event, JOB_EMAIL_EVENT_VERIFIED, JOB_NOTIFY_EVENT_VERIFIED);
   }
 
   // ── Event rejected ───────────────────────────────────────────────
 
   @OnEvent(EVENT_REJECTED_EVENT)
   async onEventRejected(event: EventRejectedEvent): Promise<void> {
-    await this.enqueueVerificationJobs(
-      event,
-      JOB_EMAIL_EVENT_REJECTED,
-      JOB_NOTIFY_EVENT_REJECTED,
-    );
+    await this.enqueueVerificationJobs(event, JOB_EMAIL_EVENT_REJECTED, JOB_NOTIFY_EVENT_REJECTED);
   }
 
   // ── shared enqueue logic ─────────────────────────────────────────

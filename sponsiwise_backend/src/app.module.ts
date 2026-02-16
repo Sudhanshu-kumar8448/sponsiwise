@@ -59,4 +59,4 @@ import { CompanyLifecycleModule } from './company-lifecycle/company-lifecycle.mo
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

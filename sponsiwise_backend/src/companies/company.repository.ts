@@ -33,10 +33,7 @@ export class CompanyRepository {
   /**
    * Find a single company by ID within a specific tenant.
    */
-  async findByIdAndTenant(
-    id: string,
-    tenantId: string,
-  ): Promise<Company | null> {
+  async findByIdAndTenant(id: string, tenantId: string): Promise<Company | null> {
     return this.prisma.company.findFirst({ where: { id, tenantId } });
   }
 
@@ -115,10 +112,7 @@ export class CompanyRepository {
   /**
    * Update a company by ID (no tenant scope — SUPER_ADMIN).
    */
-  async updateById(
-    id: string,
-    data: Prisma.CompanyUpdateInput,
-  ): Promise<Company> {
+  async updateById(id: string, data: Prisma.CompanyUpdateInput): Promise<Company> {
     return this.prisma.company.update({
       where: { id },
       data,

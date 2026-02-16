@@ -1,5 +1,15 @@
 import Link from "next/link";
 import {
+  Calendar,
+  Globe,
+  FileText,
+  Clock,
+  CheckCircle2,
+  Wallet,
+  ArrowRight,
+  AlertCircle,
+} from "lucide-react";
+import {
   fetchOrganizerDashboardStats,
   fetchIncomingProposals,
 } from "@/lib/organizer-api";
@@ -14,47 +24,70 @@ function StatsGrid({ stats }: { stats: OrganizerDashboardStats }) {
     {
       label: "Total Events",
       value: stats.total_events,
-      color: "text-green-600",
+      icon: Calendar,
+      gradient: "from-emerald-500 to-green-500",
+      glow: "shadow-emerald-500/20",
     },
     {
       label: "Published",
       value: stats.published_events,
-      color: "text-blue-400",
+      icon: Globe,
+      gradient: "from-blue-500 to-blue-600",
+      glow: "shadow-blue-500/20",
     },
     {
       label: "Proposals Received",
       value: stats.total_proposals_received,
-      color: "text-purple-600",
+      icon: FileText,
+      gradient: "from-purple-500 to-violet-500",
+      glow: "shadow-purple-500/20",
     },
     {
       label: "Pending Review",
       value: stats.pending_proposals,
-      color: "text-yellow-600",
+      icon: Clock,
+      gradient: "from-amber-500 to-orange-500",
+      glow: "shadow-amber-500/20",
     },
     {
       label: "Approved",
       value: stats.approved_proposals,
-      color: "text-green-600",
+      icon: CheckCircle2,
+      gradient: "from-teal-400 to-emerald-500",
+      glow: "shadow-teal-500/20",
     },
     {
       label: "Sponsorship Revenue",
       value: `${stats.currency} ${stats.total_sponsorship_revenue.toLocaleString()}`,
-      color: "text-gray-900",
+      icon: Wallet,
+      gradient: "from-sky-400 to-blue-500",
+      glow: "shadow-sky-500/20",
     },
   ];
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-      {cards.map((card, i) => (
-        <div key={card.label} className="animate-scale-in rounded-xl bg-white p-5 shadow-md transition-all hover:shadow-lg hover:-translate-y-0.5" style={{ animationDelay: `${i * 50}ms` }}>
-          <p className="text-xs font-medium uppercase tracking-wider text-gray-500">
-            {card.label}
-          </p>
-          <p className={`mt-2 text-2xl font-bold ${card.color}`}>
-            {card.value}
-          </p>
-        </div>
-      ))}
+      {cards.map((card, i) => {
+        const Icon = card.icon;
+        return (
+          <div
+            key={card.label}
+            className={`group relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-lg ${card.glow} transition-all duration-300 hover:border-slate-700 hover:-translate-y-0.5 hover:shadow-xl`}
+            style={{ animationDelay: `${i * 50}ms` }}
+          >
+            <div className={`absolute -right-4 -top-4 h-16 w-16 rounded-full bg-gradient-to-br ${card.gradient} opacity-10 blur-xl transition-opacity group-hover:opacity-20`} />
+            <div className="relative flex items-start justify-between">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-slate-500">{card.label}</p>
+                <p className="mt-2 text-2xl font-bold text-white">{card.value}</p>
+              </div>
+              <div className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${card.gradient} shadow-lg ${card.glow}`}>
+                <Icon className="h-4 w-4 text-white" />
+              </div>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -64,93 +97,73 @@ function StatsGrid({ stats }: { stats: OrganizerDashboardStats }) {
 function RecentProposals({ proposals }: { proposals: IncomingProposal[] }) {
   if (proposals.length === 0) {
     return (
-      <div className="rounded-xl bg-white p-8 text-center shadow">
-        <span className="text-4xl">📬</span>
-        <p className="mt-3 text-sm text-gray-500">
+      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-8 text-center">
+        <FileText className="mx-auto h-8 w-8 text-slate-500" />
+        <p className="mt-3 text-sm text-slate-400">
           No sponsorship proposals received yet.
         </p>
-        <p className="mt-1 text-xs text-gray-400">
-          Once sponsors submit proposals for your events, they&apos;ll appear
-          here.
+        <p className="mt-1 text-xs text-slate-500">
+          Once sponsors submit proposals for your events, they&apos;ll appear here.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="animate-fade-in-up overflow-hidden rounded-xl bg-white shadow-md">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-              Proposal
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-              Sponsor
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-              Event
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-              Amount
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-              Status
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-              Received
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200">
-          {proposals.map((p) => (
-            <tr key={p.id} className="hover:bg-gray-50 transition-colors">
-              <td className="px-6 py-4">
-                <Link
-                  href={`/dashboard/proposals/${p.id}`}
-                  className="text-sm font-medium text-green-700 hover:text-green-900"
-                >
-                  {p.title}
-                </Link>
-              </td>
-              <td className="px-6 py-4">
-                <div className="flex items-center gap-2">
-                  {p.sponsor.logo_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={p.sponsor.logo_url}
-                      alt={p.sponsor.name}
-                      className="h-6 w-6 rounded-full object-cover"
-                    />
-                  ) : (
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 text-xs font-bold text-gray-500">
-                      {p.sponsor.name.charAt(0)}
-                    </span>
-                  )}
-                  <span className="text-sm text-gray-700">
-                    {p.sponsor.name}
-                  </span>
-                </div>
-              </td>
-              <td className="px-6 py-4 text-sm text-gray-600">
-                {p.event.title}
-              </td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                {p.currency} {p.amount.toLocaleString()}
-              </td>
-              <td className="px-6 py-4">
-                <ProposalStatusBadge status={p.status} />
-              </td>
-              <td className="px-6 py-4 text-sm text-gray-500">
-                {new Date(p.created_at).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })}
-              </td>
+    <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-slate-800">
+          <thead className="bg-slate-800/50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">Proposal</th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">Sponsor</th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">Event</th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">Amount</th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">Received</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-slate-800">
+            {proposals.map((p) => (
+              <tr key={p.id} className="hover:bg-slate-800/50 transition-colors">
+                <td className="px-6 py-4">
+                  <Link
+                    href={`/dashboard/proposals/${p.id}`}
+                    className="text-sm font-medium text-blue-400 hover:text-sky-300 transition-colors"
+                  >
+                    {p.title}
+                  </Link>
+                </td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-2">
+                    {p.sponsor.logo_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={p.sponsor.logo_url}
+                        alt={p.sponsor.name}
+                        className="h-6 w-6 rounded-full object-cover ring-1 ring-slate-700"
+                      />
+                    ) : (
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-sky-400 text-xs font-bold text-white">
+                        {p.sponsor.name.charAt(0)}
+                      </span>
+                    )}
+                    <span className="text-sm text-slate-300">{p.sponsor.name}</span>
+                  </div>
+                </td>
+                <td className="px-6 py-4 text-sm text-slate-400">{p.event.title}</td>
+                <td className="px-6 py-4 text-sm font-medium text-white">
+                  {p.currency} {p.amount.toLocaleString()}
+                </td>
+                <td className="px-6 py-4"><ProposalStatusBadge status={p.status} /></td>
+                <td className="px-6 py-4 text-sm text-slate-500">
+                  {new Date(p.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -159,8 +172,9 @@ function RecentProposals({ proposals }: { proposals: IncomingProposal[] }) {
 
 function ErrorCard({ message }: { message: string }) {
   return (
-    <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
-      <p className="text-sm text-red-700">{message}</p>
+    <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-6 text-center">
+      <AlertCircle className="mx-auto h-8 w-8 text-red-400" />
+      <p className="mt-2 text-sm text-red-300">{message}</p>
     </div>
   );
 }
@@ -188,18 +202,20 @@ export default async function OrganizerDashboard() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="mt-1 text-sm text-gray-600">
+          <h1 className="text-2xl font-bold text-white">Dashboard</h1>
+          <p className="mt-1 text-sm text-slate-400">
             Overview of your events and sponsorship activity.
           </p>
         </div>
         <Link
           href="/dashboard/events"
-          className="rounded-lg bg-blue-400 px-4 py-2.5 text-sm font-semibold text-white shadow transition-all hover:bg-blue-500 hover:shadow-md hover:-translate-y-0.5"
+          className="group inline-flex items-center gap-2 self-start rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 transition-all hover:shadow-xl hover:shadow-blue-500/30 hover:-translate-y-0.5 sm:self-center"
         >
+          <Calendar className="h-4 w-4" />
           My Events
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </Link>
       </div>
 
@@ -211,14 +227,15 @@ export default async function OrganizerDashboard() {
 
           <div>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className="text-lg font-semibold text-white">
                 Recent Proposals
               </h2>
               <Link
                 href="/dashboard/proposals"
-                className="text-sm font-medium text-blue-400 transition-colors hover:text-blue-600"
+                className="group inline-flex items-center gap-1 text-sm font-medium text-blue-400 transition-colors hover:text-sky-300"
               >
-                View all →
+                View all
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
               </Link>
             </div>
             <RecentProposals proposals={recentProposals} />

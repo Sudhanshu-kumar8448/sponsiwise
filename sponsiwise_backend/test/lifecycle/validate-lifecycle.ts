@@ -35,8 +35,7 @@ import { Client } from 'pg';
 
 const API_BASE = process.env.API_BASE ?? 'http://localhost:3000';
 const DATABASE_URL =
-  process.env.DATABASE_URL ??
-  'postgresql://postgres:postgres@localhost:5432/postgres';
+  process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/postgres';
 const TEST_PASSWORD = 'TestPass123!';
 
 // ─── Test IDs (match seed SQL) ──────────────────────────────────────────
@@ -91,10 +90,7 @@ async function seedDatabase(): Promise<void> {
     const hash = await bcrypt.hash(TEST_PASSWORD, 10);
 
     // Read SQL seed file
-    let sql = readFileSync(
-      join(__dirname, 'seed-lifecycle-qa.sql'),
-      'utf-8',
-    );
+    let sql = readFileSync(join(__dirname, 'seed-lifecycle-qa.sql'), 'utf-8');
 
     // Replace placeholder with real bcrypt hash
     sql = sql.replace(/__BCRYPT_HASH__/g, hash);
@@ -118,9 +114,7 @@ async function loginAsManager(email: string): Promise<AxiosInstance> {
 
   // Extract cookies from set-cookie header
   const setCookies: string[] = loginRes.headers['set-cookie'] ?? [];
-  const cookieHeader = setCookies
-    .map((c: string) => c.split(';')[0])
-    .join('; ');
+  const cookieHeader = setCookies.map((c: string) => c.split(';')[0]).join('; ');
 
   // Create authenticated client
   return axios.create({
@@ -177,7 +171,10 @@ async function validateCase1(client: AxiosInstance): Promise<void> {
   // Progress: totalSteps=2 (created + verification), completedSteps=1
   // percentage = 50%
   assert(data.progress.totalSteps === 2, `totalSteps = 2 (got ${data.progress.totalSteps})`);
-  assert(data.progress.completedSteps === 1, `completedSteps = 1 (got ${data.progress.completedSteps})`);
+  assert(
+    data.progress.completedSteps === 1,
+    `completedSteps = 1 (got ${data.progress.completedSteps})`,
+  );
   assert(data.progress.percentage === 50, `percentage = 50% (got ${data.progress.percentage})`);
 
   // Proposals
@@ -206,7 +203,10 @@ async function validateCase2(client: AxiosInstance): Promise<void> {
   // Completed: created(1) + verified(1) + 2 submitted(2) + 1 approved(1) + 3 sent emails(3) = 8
   // Percentage = round(8/9 * 100) = 89%
   assert(data.progress.totalSteps === 9, `totalSteps = 9 (got ${data.progress.totalSteps})`);
-  assert(data.progress.completedSteps === 8, `completedSteps = 8 (got ${data.progress.completedSteps})`);
+  assert(
+    data.progress.completedSteps === 8,
+    `completedSteps = 8 (got ${data.progress.completedSteps})`,
+  );
   assertRange(data.progress.percentage, 80, 95, 'percentage > 80%');
 
   // Proposals
@@ -244,7 +244,10 @@ async function validateCase3(client: AxiosInstance): Promise<void> {
   // totalSteps = 4, completedSteps = 3 (created + verified + 1 sent email)
   // FAILED email adds to total but NOT completed
   assert(data.progress.totalSteps === 4, `totalSteps = 4 (got ${data.progress.totalSteps})`);
-  assert(data.progress.completedSteps === 3, `completedSteps = 3 (got ${data.progress.completedSteps})`);
+  assert(
+    data.progress.completedSteps === 3,
+    `completedSteps = 3 (got ${data.progress.completedSteps})`,
+  );
   assert(data.progress.percentage === 75, `percentage = 75% (got ${data.progress.percentage})`);
 
   // Failed email visible in timeline
@@ -298,19 +301,14 @@ async function validateCase4(client: AxiosInstance): Promise<void> {
 // PHASE 3 — TENANT ISOLATION
 // ============================================================================
 
-async function validateTenantIsolation(
-  client1: AxiosInstance,
-): Promise<void> {
+async function validateTenantIsolation(client1: AxiosInstance): Promise<void> {
   console.log('\n─── PHASE 3: Tenant isolation ───');
 
   // Tenant 1 manager tries to fetch Tenant 2 event
   const { status, data } = await fetchLifecycle(client1, IDS.isoEvent);
 
   // Should return 404 (event not found in tenant 1)
-  assert(
-    status === 404,
-    `Isolation: HTTP ${status} for cross-tenant fetch (expected 404)`,
-  );
+  assert(status === 404, `Isolation: HTTP ${status} for cross-tenant fetch (expected 404)`);
   assert(data === null, 'No lifecycle data returned for cross-tenant request');
 }
 
@@ -353,23 +351,32 @@ async function seedStressData(): Promise<string> {
       const sponsorshipId = randomUUID();
       const proposalId = randomUUID();
 
-      await client.query(`
+      await client.query(
+        `
         INSERT INTO companies (id, tenant_id, name, type, verification_status, is_active, created_at, updated_at)
         VALUES ($1, $2, $3, 'SPONSOR', 'VERIFIED', TRUE, NOW(), NOW())
         ON CONFLICT (id) DO NOTHING;
-      `, [companyId, IDS.tenant1, `Stress Sponsor ${i}`]);
+      `,
+        [companyId, IDS.tenant1, `Stress Sponsor ${i}`],
+      );
 
-      await client.query(`
+      await client.query(
+        `
         INSERT INTO sponsorships (id, tenant_id, company_id, event_id, status, is_active, created_at, updated_at)
         VALUES ($1, $2, $3, $4, 'ACTIVE', TRUE, NOW(), NOW())
         ON CONFLICT (company_id, event_id) DO NOTHING;
-      `, [sponsorshipId, IDS.tenant1, companyId, stressEventId]);
+      `,
+        [sponsorshipId, IDS.tenant1, companyId, stressEventId],
+      );
 
-      await client.query(`
+      await client.query(
+        `
         INSERT INTO proposals (id, tenant_id, sponsorship_id, status, proposed_amount, submitted_at, is_active, created_at, updated_at)
         VALUES ($1, $2, $3, 'SUBMITTED', 1000.00, NOW() - INTERVAL '${i} hours', TRUE, NOW() - INTERVAL '${i + 1} hours', NOW())
         ON CONFLICT (id) DO NOTHING;
-      `, [proposalId, IDS.tenant1, sponsorshipId]);
+      `,
+        [proposalId, IDS.tenant1, sponsorshipId],
+      );
     }
 
     // Create 200 email logs
@@ -377,19 +384,22 @@ async function seedStressData(): Promise<string> {
       const emailId = randomUUID();
       const status = i % 10 === 0 ? 'FAILED' : 'SENT'; // 10% failure rate
 
-      await client.query(`
+      await client.query(
+        `
         INSERT INTO email_logs (id, tenant_id, recipient, subject, job_name, entity_type, entity_id, status, error_message, created_at)
         VALUES ($1, $2, $3, $4, 'stress.test', 'Event', $5, $6, $7, NOW() - INTERVAL '${i} minutes')
         ON CONFLICT (id) DO NOTHING;
-      `, [
-        emailId,
-        IDS.tenant1,
-        `stress-${i}@test.com`,
-        `Stress email ${i}`,
-        stressEventId,
-        status,
-        status === 'FAILED' ? 'Simulated SMTP failure' : null,
-      ]);
+      `,
+        [
+          emailId,
+          IDS.tenant1,
+          `stress-${i}@test.com`,
+          `Stress email ${i}`,
+          stressEventId,
+          status,
+          status === 'FAILED' ? 'Simulated SMTP failure' : null,
+        ],
+      );
     }
 
     console.log('  ✅ 100 proposals + 200 email logs inserted');
@@ -400,10 +410,7 @@ async function seedStressData(): Promise<string> {
   return stressEventId;
 }
 
-async function validateStress(
-  client: AxiosInstance,
-  stressEventId: string,
-): Promise<void> {
+async function validateStress(client: AxiosInstance, stressEventId: string): Promise<void> {
   console.log('\n─── PHASE 4: Stress test validation ───');
 
   const start = Date.now();
@@ -454,7 +461,10 @@ async function validateEdgeCases(client: AxiosInstance): Promise<void> {
   assert(r1 === 200, 'Rejected event: HTTP 200');
   if (d1) {
     // verification step should be completed (REJECTED counts as completed in progress)
-    assert(d1.progress.completedSteps >= 2, `Rejected event: completedSteps >= 2 (got ${d1.progress.completedSteps})`);
+    assert(
+      d1.progress.completedSteps >= 2,
+      `Rejected event: completedSteps >= 2 (got ${d1.progress.completedSteps})`,
+    );
     const hasRejected = d1.timeline.some((t) => t.type === 'EVENT_REJECTED');
     assert(hasRejected, 'Rejected event: timeline has EVENT_REJECTED');
     assert(d1.event.verificationStatus === 'REJECTED', 'Event status is REJECTED');
@@ -574,7 +584,9 @@ async function main(): Promise<void> {
   console.log('\n╔══════════════════════════════════════════════════════╗');
   console.log('║    FINAL REPORT                                     ║');
   console.log('╠══════════════════════════════════════════════════════╣');
-  console.log(`║  ✅ Passed: ${String(passCount).padEnd(4)} ❌ Failed: ${String(failCount).padEnd(4)}              ║`);
+  console.log(
+    `║  ✅ Passed: ${String(passCount).padEnd(4)} ❌ Failed: ${String(failCount).padEnd(4)}              ║`,
+  );
   console.log('╚══════════════════════════════════════════════════════╝');
 
   if (failCount > 0) {
@@ -589,6 +601,10 @@ async function main(): Promise<void> {
 
 main().catch(async (err) => {
   console.error('\n💥 FATAL ERROR:', err);
-  try { await cleanup(); } catch (_) { /* ignore cleanup errors */ }
+  try {
+    await cleanup();
+  } catch (_) {
+    /* ignore cleanup errors */
+  }
   process.exit(2);
 });

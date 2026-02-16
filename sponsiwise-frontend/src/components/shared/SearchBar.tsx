@@ -1,20 +1,5 @@
+import { Search } from "lucide-react";
 import type { ReactNode } from "react";
-
-// ─── Colour lookup (safe for Tailwind's class scanner) ─────────────────
-
-const focusRing: Record<string, string> = {
-  blue:  "focus:border-blue-500 focus:ring-blue-500",
-  red:   "focus:border-red-400 focus:ring-red-400",
-  amber: "focus:border-amber-500 focus:ring-amber-500",
-  green: "focus:border-green-500 focus:ring-green-500",
-};
-
-const buttonBg: Record<string, string> = {
-  blue:  "bg-blue-600 hover:bg-blue-700",
-  red:   "bg-red-600 hover:bg-red-700",
-  amber: "bg-amber-600 hover:bg-amber-700",
-  green: "bg-green-600 hover:bg-green-700",
-};
 
 // ─── Props ─────────────────────────────────────────────────────────────
 
@@ -53,15 +38,16 @@ export default function SearchBar({
   children,
 }: SearchBarProps) {
   return (
-    <form className="rounded-xl bg-white p-4 shadow">
+    <form className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
       <div className="flex flex-wrap items-end gap-3">
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
           <input
             type="text"
             name="search"
             defaultValue={defaultValue}
             placeholder={placeholder}
-            className={`w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 ${focusRing[color] ?? focusRing.blue}`}
+            className="w-full rounded-xl border border-slate-700 bg-slate-800 pl-9 pr-3 py-2 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
 
@@ -78,7 +64,7 @@ export default function SearchBar({
 
         <button
           type="submit"
-          className={`rounded-md px-4 py-2 text-sm font-medium text-white transition-colors ${buttonBg[color] ?? buttonBg.blue}`}
+          className="rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 px-5 py-2 text-sm font-medium text-white shadow-lg shadow-blue-500/20 hover:shadow-xl transition-all"
         >
           Search
         </button>

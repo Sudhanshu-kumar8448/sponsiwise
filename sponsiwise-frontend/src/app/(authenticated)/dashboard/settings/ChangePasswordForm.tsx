@@ -15,7 +15,6 @@ export default function ChangePasswordForm() {
         e.preventDefault();
         setMessage("");
 
-        // Client-side validation
         if (newPassword.length < 8) {
             setStatus("error");
             setMessage("New password must be at least 8 characters.");
@@ -65,7 +64,7 @@ export default function ChangePasswordForm() {
             <div>
                 <label
                     htmlFor="currentPassword"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-slate-300"
                 >
                     Current Password
                 </label>
@@ -75,7 +74,7 @@ export default function ChangePasswordForm() {
                     required
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
-                    className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     placeholder="Enter current password"
                 />
             </div>
@@ -83,7 +82,7 @@ export default function ChangePasswordForm() {
             <div>
                 <label
                     htmlFor="newPassword"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-slate-300"
                 >
                     New Password
                 </label>
@@ -94,7 +93,7 @@ export default function ChangePasswordForm() {
                     minLength={8}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     placeholder="Min. 8 characters"
                 />
             </div>
@@ -102,7 +101,7 @@ export default function ChangePasswordForm() {
             <div>
                 <label
                     htmlFor="confirmPassword"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-slate-300"
                 >
                     Confirm New Password
                 </label>
@@ -113,7 +112,7 @@ export default function ChangePasswordForm() {
                     minLength={8}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     placeholder="Re-enter new password"
                 />
             </div>
@@ -121,9 +120,9 @@ export default function ChangePasswordForm() {
             {/* Feedback message */}
             {message && (
                 <div
-                    className={`rounded-lg px-4 py-3 text-sm ${status === "success"
-                            ? "border border-green-200 bg-green-50 text-green-700"
-                            : "border border-red-200 bg-red-50 text-red-700"
+                    className={`rounded-xl px-4 py-3 text-sm ${status === "success"
+                            ? "border border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
+                            : "border border-red-500/20 bg-red-500/10 text-red-400"
                         }`}
                 >
                     {message}
@@ -133,7 +132,7 @@ export default function ChangePasswordForm() {
             <button
                 type="submit"
                 disabled={status === "loading"}
-                className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 transition-all hover:shadow-xl hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
             >
                 {status === "loading" ? "Changing…" : "Change Password"}
             </button>

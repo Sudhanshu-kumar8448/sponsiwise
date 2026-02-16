@@ -25,6 +25,7 @@ export default async function AuthenticatedGroupLayout({
 
   if (!user) {
     redirect("/login");
+    return null; // Should be unreachable
   }
 
   return <RoleLayoutRenderer user={user}>{children}</RoleLayoutRenderer>;

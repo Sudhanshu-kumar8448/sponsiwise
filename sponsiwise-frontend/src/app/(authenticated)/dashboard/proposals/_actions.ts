@@ -54,6 +54,9 @@ export async function createProposalAction(
     const proposal = await createProposal(payload);
     // Redirect to the new proposal detail page on success
     redirect(`/dashboard/proposals/${proposal.id}`);
+
+    // Unreachable return to satisfy TS if types are missing
+    return { success: true, error: null, proposalId: proposal.id };
   } catch (err) {
     // redirect() throws a special error so we need to re-throw it
     if (err instanceof Error && err.message === "NEXT_REDIRECT") {
@@ -90,6 +93,8 @@ export async function withdrawProposalAction(
   try {
     await withdrawProposal(id);
     redirect(`/dashboard/proposals/${id}`);
+
+    return { success: true, error: null };
   } catch (err) {
     if (err instanceof Error && err.message === "NEXT_REDIRECT") {
       throw err;

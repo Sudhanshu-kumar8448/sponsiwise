@@ -37,11 +37,11 @@ function variantClasses(variant: ButtonVariant, color: string): string {
     case "primary":
       return `bg-${color}-600 text-white hover:bg-${color}-700 focus:ring-${color}-500`;
     case "secondary":
-      return "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-gray-400";
+      return "border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white focus:ring-slate-500";
     case "danger":
       return "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500";
     case "ghost":
-      return "text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:ring-gray-400";
+      return "text-slate-400 hover:bg-slate-800 hover:text-white focus:ring-slate-500";
   }
 }
 
@@ -68,7 +68,7 @@ export default function Button({
   return (
     <button
       disabled={disabled || loading}
-      className={`inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${sizeClasses[size]} ${variantClasses(variant, color)} ${className ?? ""}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-50 ${sizeClasses[size]} ${variantClasses(variant, color)} ${className ?? ""}`}
       {...rest}
     >
       {loading ? (

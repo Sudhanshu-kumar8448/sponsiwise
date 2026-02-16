@@ -50,9 +50,12 @@ export interface CompanyLifecycleResponse {
 
 @Injectable()
 export class ManagerCompanyLifecycleService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-  async getCompanyLifecycle(tenantId: string, companyId: string): Promise<CompanyLifecycleResponse> {
+  async getCompanyLifecycle(
+    tenantId: string,
+    companyId: string,
+  ): Promise<CompanyLifecycleResponse> {
     // 1. Fetch company
     const company = await this.prisma.company.findFirst({
       where: { id: companyId, tenantId },

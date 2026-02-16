@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  ConflictException,
-  UnauthorizedException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, ConflictException, UnauthorizedException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../common/providers/prisma.service';
@@ -30,7 +25,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   /**
    * Get the authenticated user by ID.
@@ -108,9 +103,7 @@ export class AuthService {
   /**
    * Remove password from user object for safe responses.
    */
-  private excludePassword<T extends { password: string }>(
-    user: T,
-  ): Omit<T, 'password'> {
+  private excludePassword<T extends { password: string }>(user: T): Omit<T, 'password'> {
     const { password: _, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
@@ -122,9 +115,7 @@ export class AuthService {
    * - Verifies password with bcrypt
    * - Returns JWT access token
    */
-  async login(
-    dto: LoginDto,
-  ): Promise<{ accessToken: string; refreshToken: string; user: object }> {
+  async login(dto: LoginDto): Promise<{ accessToken: string; refreshToken: string; user: object }> {
     // Find user by email
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email.toLowerCase() },
@@ -215,9 +206,7 @@ export class AuthService {
         where: { userId: storedToken.userId },
         data: { isRevoked: true },
       });
-      throw new UnauthorizedException(
-        'Refresh token reuse detected. All sessions revoked.',
-      );
+      throw new UnauthorizedException('Refresh token reuse detected. All sessions revoked.');
     }
 
     // 5. Check if token is expired (belt + suspenders — JWT verify already checks this)
@@ -269,10 +258,7 @@ export class AuthService {
   /**
    * Generate a signed refresh token JWT and store its hash in DB.
    */
-  private async generateRefreshToken(
-    payload: JwtPayload,
-    userId: string,
-  ): Promise<string> {
+  private async generateRefreshToken(payload: JwtPayload, userId: string): Promise<string> {
     const jwtConfig = this.configService.get<JwtConfig>('jwt');
     const expiresIn = jwtConfig?.refreshExpiresIn || '7d';
 

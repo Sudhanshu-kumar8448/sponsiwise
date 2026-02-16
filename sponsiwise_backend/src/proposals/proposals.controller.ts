@@ -14,11 +14,7 @@ import { AuthGuard, RoleGuard } from '../common/guards';
 import { Roles, CurrentUser } from '../common/decorators';
 import type { JwtPayloadWithClaims } from '../auth/interfaces';
 import { ProposalService } from './proposal.service';
-import {
-  CreateProposalDto,
-  UpdateProposalDto,
-  ListProposalsQueryDto,
-} from './dto';
+import { CreateProposalDto, UpdateProposalDto, ListProposalsQueryDto } from './dto';
 
 /**
  * ProposalsController — HTTP layer for proposal management.
@@ -50,10 +46,7 @@ export class ProposalsController {
   @Post()
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
-  async create(
-    @Body() dto: CreateProposalDto,
-    @CurrentUser() user: JwtPayloadWithClaims,
-  ) {
+  async create(@Body() dto: CreateProposalDto, @CurrentUser() user: JwtPayloadWithClaims) {
     return this.proposalService.create(dto, user.role, user.tenant_id);
   }
 
@@ -68,10 +61,7 @@ export class ProposalsController {
   @Get()
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.USER, Role.ADMIN, Role.SUPER_ADMIN)
-  async findAll(
-    @Query() query: ListProposalsQueryDto,
-    @CurrentUser() user: JwtPayloadWithClaims,
-  ) {
+  async findAll(@Query() query: ListProposalsQueryDto, @CurrentUser() user: JwtPayloadWithClaims) {
     return this.proposalService.findAll(query, user.role, user.tenant_id);
   }
 

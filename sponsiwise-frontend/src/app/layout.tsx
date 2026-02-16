@@ -2,9 +2,12 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Sponsiwise — Sponsorship Marketplace",
+  title: "Sponsiwise",
   description:
     "Connect sponsors with events effortlessly. The modern platform for sponsorship management, discovery, and collaboration.",
+  icons: {
+    icon: "/images/logo-icon.svg",
+  },
 };
 
 export default function RootLayout({

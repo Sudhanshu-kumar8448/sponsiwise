@@ -5,24 +5,13 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
-import {
-  EventStatus,
-  ProposalStatus,
-  SponsorshipStatus,
-} from '@prisma/client';
+import { EventStatus, ProposalStatus, SponsorshipStatus } from '@prisma/client';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PrismaService } from '../common/providers/prisma.service';
 import { AuditLogService } from '../audit-logs/audit-log.service';
 import { CacheService } from '../common/providers/cache.service';
-import {
-  ProposalStatusChangedEvent,
-  PROPOSAL_STATUS_CHANGED_EVENT,
-} from '../proposals/events';
-import type {
-  OrganizerEventsQueryDto,
-  OrganizerProposalsQueryDto,
-  ReviewProposalDto,
-} from './dto';
+import { ProposalStatusChangedEvent, PROPOSAL_STATUS_CHANGED_EVENT } from '../proposals/events';
+import type { OrganizerEventsQueryDto, OrganizerProposalsQueryDto, ReviewProposalDto } from './dto';
 
 /**
  * OrganizerDashboardService — read-mostly aggregation layer for organizer-scoped data.
@@ -49,13 +38,9 @@ export class OrganizerDashboardService {
    * Validate that the caller has a linked organizer.
    * Throws 403 if organizerId is missing from the JWT.
    */
-  private assertOrganizerId(
-    organizerId?: string,
-  ): asserts organizerId is string {
+  private assertOrganizerId(organizerId?: string): asserts organizerId is string {
     if (!organizerId) {
-      throw new ForbiddenException(
-        'Organizer account is not linked to an organizer entity',
-      );
+      throw new ForbiddenException('Organizer account is not linked to an organizer entity');
     }
   }
 
@@ -133,9 +118,7 @@ export class OrganizerDashboardService {
 
     let totalSponsorshipRevenue = 0;
     for (const p of revenueResult) {
-      totalSponsorshipRevenue += p.proposedAmount
-        ? Number(p.proposedAmount)
-        : 0;
+      totalSponsorshipRevenue += p.proposedAmount ? Number(p.proposedAmount) : 0;
     }
 
     return {
@@ -228,10 +211,7 @@ export class OrganizerDashboardService {
         for (const s of e.sponsorships) {
           for (const p of s.proposals) {
             totalProposals++;
-            if (
-              p.status === ProposalStatus.SUBMITTED ||
-              p.status === ProposalStatus.UNDER_REVIEW
-            ) {
+            if (p.status === ProposalStatus.SUBMITTED || p.status === ProposalStatus.UNDER_REVIEW) {
               pendingProposals++;
             }
             if (p.status === ProposalStatus.APPROVED && p.proposedAmount) {
@@ -283,11 +263,7 @@ export class OrganizerDashboardService {
    *
    * Returns a single event owned by this organizer with aggregated proposal data.
    */
-  async getEventById(
-    eventId: string,
-    tenantId: string,
-    organizerId?: string,
-  ) {
+  async getEventById(eventId: string, tenantId: string, organizerId?: string) {
     this.assertOrganizerId(organizerId);
 
     const e = await this.prisma.event.findFirst({
@@ -329,10 +305,7 @@ export class OrganizerDashboardService {
     for (const s of e.sponsorships) {
       for (const p of s.proposals) {
         totalProposals++;
-        if (
-          p.status === ProposalStatus.SUBMITTED ||
-          p.status === ProposalStatus.UNDER_REVIEW
-        ) {
+        if (p.status === ProposalStatus.SUBMITTED || p.status === ProposalStatus.UNDER_REVIEW) {
           pendingProposals++;
         }
         if (p.status === ProposalStatus.APPROVED && p.proposedAmount) {
@@ -480,11 +453,7 @@ export class OrganizerDashboardService {
    *
    * Returns a single proposal for an event owned by this organizer.
    */
-  async getProposalById(
-    proposalId: string,
-    tenantId: string,
-    organizerId?: string,
-  ) {
+  async getProposalById(proposalId: string, tenantId: string, organizerId?: string) {
     this.assertOrganizerId(organizerId);
 
     const p = await this.prisma.proposal.findFirst({
@@ -588,16 +557,12 @@ export class OrganizerDashboardService {
 
     // 2. Ownership check: event must belong to this organizer
     if (proposal.sponsorship.event.organizerId !== organizerId) {
-      throw new ForbiddenException(
-        'You can only review proposals for your own events',
-      );
+      throw new ForbiddenException('You can only review proposals for your own events');
     }
 
     // 3. Map action to target status
     const targetStatus =
-      dto.action === 'approve'
-        ? ProposalStatus.APPROVED
-        : ProposalStatus.REJECTED;
+      dto.action === 'approve' ? ProposalStatus.APPROVED : ProposalStatus.REJECTED;
 
     // 4. Validate status transition
     // If currently SUBMITTED, auto-transition through UNDER_REVIEW first

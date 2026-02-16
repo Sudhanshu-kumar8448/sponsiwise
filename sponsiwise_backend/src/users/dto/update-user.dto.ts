@@ -1,9 +1,4 @@
-import {
-  IsOptional,
-  IsString,
-  IsEnum,
-  IsBoolean,
-} from 'class-validator';
+import { IsOptional, IsString, IsEnum, IsBoolean } from 'class-validator';
 import { Role } from '@prisma/client';
 
 /**

@@ -1,12 +1,4 @@
-import {
-  IsOptional,
-  IsString,
-  IsBoolean,
-  IsEnum,
-  IsNumber,
-  MaxLength,
-  Min,
-} from 'class-validator';
+import { IsOptional, IsString, IsBoolean, IsEnum, IsNumber, MaxLength, Min } from 'class-validator';
 import { ProposalStatus } from '@prisma/client';
 
 /**

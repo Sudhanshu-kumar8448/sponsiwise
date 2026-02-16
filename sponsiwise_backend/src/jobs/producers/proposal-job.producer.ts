@@ -2,14 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import {
-  PROPOSAL_CREATED_EVENT,
-  ProposalCreatedEvent,
-} from '../../proposals/events';
-import {
-  PROPOSAL_STATUS_CHANGED_EVENT,
-  ProposalStatusChangedEvent,
-} from '../../proposals/events';
+import { PROPOSAL_CREATED_EVENT, ProposalCreatedEvent } from '../../proposals/events';
+import { PROPOSAL_STATUS_CHANGED_EVENT, ProposalStatusChangedEvent } from '../../proposals/events';
 import {
   QUEUE_EMAIL,
   QUEUE_NOTIFICATIONS,
@@ -20,10 +14,7 @@ import {
   JOB_NOTIFY_PROPOSAL_APPROVED,
   JOB_NOTIFY_PROPOSAL_REJECTED,
 } from '../constants';
-import type {
-  ProposalEmailPayload,
-  ProposalNotificationPayload,
-} from '../constants';
+import type { ProposalEmailPayload, ProposalNotificationPayload } from '../constants';
 
 /**
  * Default job options shared by all proposal jobs.
@@ -89,26 +80,20 @@ export class ProposalJobProducer {
         ...DEFAULT_JOB_OPTS,
         jobId,
       }),
-      this.notificationQueue.add(
-        JOB_NOTIFY_PROPOSAL_SUBMITTED,
-        notifyPayload,
-        { ...DEFAULT_JOB_OPTS, jobId: notifyJobId },
-      ),
+      this.notificationQueue.add(JOB_NOTIFY_PROPOSAL_SUBMITTED, notifyPayload, {
+        ...DEFAULT_JOB_OPTS,
+        jobId: notifyJobId,
+      }),
     ]);
 
-    this.logger.log(
-      `Enqueued proposal-created jobs for proposal=${event.proposalId}`,
-    );
+    this.logger.log(`Enqueued proposal-created jobs for proposal=${event.proposalId}`);
   }
 
   // ── proposal.status_changed ──────────────────────────────────────
 
   @OnEvent(PROPOSAL_STATUS_CHANGED_EVENT)
-  async onProposalStatusChanged(
-    event: ProposalStatusChangedEvent,
-  ): Promise<void> {
-    const { jobName, notifyJobName } =
-      this.resolveStatusChangeJobNames(event.newStatus);
+  async onProposalStatusChanged(event: ProposalStatusChangedEvent): Promise<void> {
+    const { jobName, notifyJobName } = this.resolveStatusChangeJobNames(event.newStatus);
 
     if (!jobName) {
       // Status transitions like DRAFT → SUBMITTED are already covered
@@ -150,9 +135,7 @@ export class ProposalJobProducer {
       }),
     ]);
 
-    this.logger.log(
-      `Enqueued status-change jobs [${jobName}] for proposal=${event.proposalId}`,
-    );
+    this.logger.log(`Enqueued status-change jobs [${jobName}] for proposal=${event.proposalId}`);
   }
 
   // ── helpers ──────────────────────────────────────────────────────

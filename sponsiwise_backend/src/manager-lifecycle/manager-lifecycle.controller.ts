@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  Param,
-  ParseUUIDPipe,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Param, ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { AuthGuard, RoleGuard } from '../common/guards';
 import { Roles, CurrentUser } from '../common/decorators';
@@ -24,9 +18,7 @@ import { ManagerLifecycleService } from './manager-lifecycle.service';
 @UseGuards(AuthGuard, RoleGuard)
 @Roles(Role.MANAGER)
 export class ManagerLifecycleController {
-  constructor(
-    private readonly lifecycleService: ManagerLifecycleService,
-  ) {}
+  constructor(private readonly lifecycleService: ManagerLifecycleService) {}
 
   /**
    * GET /manager/events/:id/lifecycle

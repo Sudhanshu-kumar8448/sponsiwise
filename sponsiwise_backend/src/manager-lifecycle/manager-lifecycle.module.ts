@@ -18,4 +18,4 @@ import { PrismaService } from '../common/providers/prisma.service';
   controllers: [ManagerLifecycleController, ManagerCompanyLifecycleController],
   providers: [ManagerLifecycleService, ManagerCompanyLifecycleService, PrismaService],
 })
-export class ManagerLifecycleModule { }
+export class ManagerLifecycleModule {}

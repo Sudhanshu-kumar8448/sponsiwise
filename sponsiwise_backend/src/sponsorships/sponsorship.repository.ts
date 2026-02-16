@@ -33,20 +33,14 @@ export class SponsorshipRepository {
   /**
    * Find a single sponsorship by ID within a specific tenant.
    */
-  async findByIdAndTenant(
-    id: string,
-    tenantId: string,
-  ): Promise<Sponsorship | null> {
+  async findByIdAndTenant(id: string, tenantId: string): Promise<Sponsorship | null> {
     return this.prisma.sponsorship.findFirst({ where: { id, tenantId } });
   }
 
   /**
    * Check if a sponsorship already exists for a company–event pair.
    */
-  async findByCompanyAndEvent(
-    companyId: string,
-    eventId: string,
-  ): Promise<Sponsorship | null> {
+  async findByCompanyAndEvent(companyId: string, eventId: string): Promise<Sponsorship | null> {
     return this.prisma.sponsorship.findUnique({
       where: { companyId_eventId: { companyId, eventId } },
     });
@@ -135,10 +129,7 @@ export class SponsorshipRepository {
   /**
    * Update a sponsorship by ID (no tenant scope — SUPER_ADMIN).
    */
-  async updateById(
-    id: string,
-    data: Prisma.SponsorshipUpdateInput,
-  ): Promise<Sponsorship> {
+  async updateById(id: string, data: Prisma.SponsorshipUpdateInput): Promise<Sponsorship> {
     return this.prisma.sponsorship.update({
       where: { id },
       data,

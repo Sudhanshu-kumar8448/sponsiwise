@@ -16,11 +16,11 @@ export default function SponsorLayout({ user, children }: SponsorLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen overflow-hidden bg-surface-muted">
+      <div className="flex h-screen overflow-hidden bg-slate-950">
         <Sidebar
           role={UserRole.SPONSOR}
           items={items}
-          accentClass="bg-violet-50 text-violet-600"
+          accentClass="bg-violet-500/20 text-violet-400"
         />
 
         <div className="flex flex-1 flex-col overflow-hidden">

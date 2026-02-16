@@ -33,10 +33,7 @@ export class OrganizerRepository {
   /**
    * Find a single organizer by ID within a specific tenant.
    */
-  async findByIdAndTenant(
-    id: string,
-    tenantId: string,
-  ): Promise<Organizer | null> {
+  async findByIdAndTenant(id: string, tenantId: string): Promise<Organizer | null> {
     return this.prisma.organizer.findFirst({ where: { id, tenantId } });
   }
 
@@ -111,10 +108,7 @@ export class OrganizerRepository {
   /**
    * Update an organizer by ID (no tenant scope — SUPER_ADMIN).
    */
-  async updateById(
-    id: string,
-    data: Prisma.OrganizerUpdateInput,
-  ): Promise<Organizer> {
+  async updateById(id: string, data: Prisma.OrganizerUpdateInput): Promise<Organizer> {
     return this.prisma.organizer.update({
       where: { id },
       data,

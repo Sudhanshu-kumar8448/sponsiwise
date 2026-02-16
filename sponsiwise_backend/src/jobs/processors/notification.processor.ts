@@ -12,10 +12,7 @@ import {
   JOB_NOTIFY_EVENT_VERIFIED,
   JOB_NOTIFY_EVENT_REJECTED,
 } from '../constants';
-import type {
-  ProposalNotificationPayload,
-  VerificationNotificationPayload,
-} from '../constants';
+import type { ProposalNotificationPayload, VerificationNotificationPayload } from '../constants';
 import { NotificationsService } from '../../notifications/notifications.service';
 import { PrismaService } from '../../common/providers/prisma.service';
 
@@ -47,10 +44,7 @@ export class NotificationProcessor extends WorkerHost {
         case JOB_NOTIFY_PROPOSAL_SUBMITTED:
         case JOB_NOTIFY_PROPOSAL_APPROVED:
         case JOB_NOTIFY_PROPOSAL_REJECTED:
-          await this.handleProposalNotification(
-            job.name,
-            job.data as ProposalNotificationPayload,
-          );
+          await this.handleProposalNotification(job.name, job.data as ProposalNotificationPayload);
           break;
 
         // ── Verification notifications ─────────────────────────────
@@ -112,9 +106,7 @@ export class NotificationProcessor extends WorkerHost {
       entityId: data.proposalId,
     });
 
-    this.logger.log(
-      `Proposal notification persisted: ${jobName} for user ${data.actorId}`,
-    );
+    this.logger.log(`Proposal notification persisted: ${jobName} for user ${data.actorId}`);
   }
 
   // ── Verification handlers ──────────────────────────────────────
@@ -126,17 +118,13 @@ export class NotificationProcessor extends WorkerHost {
     const isVerified = data.decision === 'VERIFIED';
     const entityLabel = data.entityType.toLowerCase();
 
-    const title = isVerified
-      ? `${data.entityType} Verified`
-      : `${data.entityType} Rejected`;
+    const title = isVerified ? `${data.entityType} Verified` : `${data.entityType} Rejected`;
 
     const message = isVerified
       ? `Your ${entityLabel} has been verified and is now active.`
       : `Your ${entityLabel} has been rejected. Please review and resubmit.`;
 
-    const severity = isVerified
-      ? NotificationSeverity.SUCCESS
-      : NotificationSeverity.ERROR;
+    const severity = isVerified ? NotificationSeverity.SUCCESS : NotificationSeverity.ERROR;
 
     // Find the owner of the entity to notify them
     let ownerUserId: string | null = null;
@@ -175,8 +163,6 @@ export class NotificationProcessor extends WorkerHost {
       entityId: data.entityId,
     });
 
-    this.logger.log(
-      `Verification notification persisted: ${jobName} for user ${ownerUserId}`,
-    );
+    this.logger.log(`Verification notification persisted: ${jobName} for user ${ownerUserId}`);
   }
 }

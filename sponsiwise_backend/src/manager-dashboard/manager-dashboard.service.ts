@@ -32,7 +32,7 @@ export class ManagerDashboardService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly eventEmitter: EventEmitter2,
-  ) { }
+  ) {}
 
   // ─── Dashboard Stats ─────────────────────────────────────
 
@@ -256,9 +256,7 @@ export class ManagerDashboardService {
     }
 
     const newStatus =
-      dto.action === 'verify'
-        ? VerificationStatus.VERIFIED
-        : VerificationStatus.REJECTED;
+      dto.action === 'verify' ? VerificationStatus.VERIFIED : VerificationStatus.REJECTED;
 
     const updated = await this.prisma.company.update({
       where: { id: companyId },
@@ -290,9 +288,7 @@ export class ManagerDashboardService {
       );
     }
 
-    this.logger.log(
-      `Company ${companyId} ${dto.action}d by ${reviewerId} in tenant ${tenantId}`,
-    );
+    this.logger.log(`Company ${companyId} ${dto.action}d by ${reviewerId} in tenant ${tenantId}`);
 
     return {
       id: updated.id,
@@ -483,15 +479,11 @@ export class ManagerDashboardService {
     }
 
     if (event.verificationStatus !== VerificationStatus.PENDING) {
-      throw new BadRequestException(
-        `Event is already ${event.verificationStatus.toLowerCase()}`,
-      );
+      throw new BadRequestException(`Event is already ${event.verificationStatus.toLowerCase()}`);
     }
 
     const newStatus =
-      dto.action === 'verify'
-        ? VerificationStatus.VERIFIED
-        : VerificationStatus.REJECTED;
+      dto.action === 'verify' ? VerificationStatus.VERIFIED : VerificationStatus.REJECTED;
 
     const updated = await this.prisma.event.update({
       where: { id: eventId },
@@ -523,9 +515,7 @@ export class ManagerDashboardService {
       );
     }
 
-    this.logger.log(
-      `Event ${eventId} ${dto.action}d by ${reviewerId} in tenant ${tenantId}`,
-    );
+    this.logger.log(`Event ${eventId} ${dto.action}d by ${reviewerId} in tenant ${tenantId}`);
 
     return {
       id: updated.id,

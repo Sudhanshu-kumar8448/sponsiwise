@@ -16,9 +16,9 @@ interface ConfirmDialogProps {
 }
 
 const variantClasses = {
-  danger: "border-red-300 bg-red-50",
-  warning: "border-amber-300 bg-amber-50",
-  success: "border-green-300 bg-green-50",
+  danger: "border-red-500/30 bg-red-500/10",
+  warning: "border-amber-500/30 bg-amber-500/10",
+  success: "border-emerald-500/30 bg-emerald-500/10",
 };
 
 /**
@@ -37,11 +37,11 @@ export default function ConfirmDialog({
   children,
 }: ConfirmDialogProps) {
   return (
-    <div className={`animate-fade-in rounded-lg border-2 p-4 ${variantClasses[variant]}`}>
-      <p className="text-sm font-medium text-slate-900">{title}</p>
-      <p className="mt-1 text-xs text-gray-600">{description}</p>
+    <div className={`animate-fade-in rounded-2xl border-2 p-4 ${variantClasses[variant]}`}>
+      <p className="text-sm font-medium text-white">{title}</p>
+      <p className="mt-1 text-xs text-slate-400">{description}</p>
       {warning && (
-        <p className="mt-2 text-xs font-semibold text-red-700">
+        <p className="mt-2 text-xs font-semibold text-red-400">
           ⚠ {warning}
         </p>
       )}

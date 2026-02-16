@@ -13,11 +13,7 @@ import { AuthGuard, RoleGuard } from '../common/guards';
 import { Roles, CurrentUser } from '../common/decorators';
 import type { JwtPayloadWithClaims } from '../auth/interfaces';
 import { AdminService } from './admin.service';
-import {
-  AdminUsersQueryDto,
-  UpdateRoleDto,
-  UpdateStatusDto,
-} from './dto';
+import { AdminUsersQueryDto, UpdateRoleDto, UpdateStatusDto } from './dto';
 
 /**
  * AdminController — admin-scoped APIs.
@@ -44,10 +40,7 @@ export class AdminController {
   // ── GET /admin/users ────────────────────────────────────────────────
 
   @Get('users')
-  async getUsers(
-    @Query() query: AdminUsersQueryDto,
-    @CurrentUser() user: JwtPayloadWithClaims,
-  ) {
+  async getUsers(@Query() query: AdminUsersQueryDto, @CurrentUser() user: JwtPayloadWithClaims) {
     return this.adminService.getUsers(user.role, user.tenant_id, query);
   }
 
@@ -69,13 +62,7 @@ export class AdminController {
     @Body() dto: UpdateRoleDto,
     @CurrentUser() user: JwtPayloadWithClaims,
   ) {
-    return this.adminService.updateRole(
-      user.sub,
-      user.role,
-      user.tenant_id,
-      id,
-      dto.role,
-    );
+    return this.adminService.updateRole(user.sub, user.role, user.tenant_id, id, dto.role);
   }
 
   // ── PATCH /admin/users/:id/status ───────────────────────────────────
@@ -86,12 +73,6 @@ export class AdminController {
     @Body() dto: UpdateStatusDto,
     @CurrentUser() user: JwtPayloadWithClaims,
   ) {
-    return this.adminService.updateStatus(
-      user.sub,
-      user.role,
-      user.tenant_id,
-      id,
-      dto.status,
-    );
+    return this.adminService.updateStatus(user.sub, user.role, user.tenant_id, id, dto.status);
   }
 }

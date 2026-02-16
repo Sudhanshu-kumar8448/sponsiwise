@@ -41,6 +41,8 @@ export async function reviewProposalAction(
       reviewer_notes: reviewer_notes || undefined,
     });
     redirect(`/dashboard/proposals/${id}`);
+
+    return { success: true, error: null };
   } catch (err) {
     // redirect() throws a special error so we need to re-throw it
     if (err instanceof Error && err.message === "NEXT_REDIRECT") {

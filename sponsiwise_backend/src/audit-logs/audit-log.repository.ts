@@ -67,10 +67,7 @@ export class AuditLogRepository {
    * List audit logs for a specific entity across time.
    * Useful for showing entity history (e.g. all changes to a Proposal).
    */
-  async findByEntity(
-    entityType: string,
-    entityId: string,
-  ): Promise<AuditLog[]> {
+  async findByEntity(entityType: string, entityId: string): Promise<AuditLog[]> {
     return this.prisma.auditLog.findMany({
       where: { entityType, entityId },
       orderBy: { createdAt: 'desc' },

@@ -16,11 +16,11 @@ export default function OrganizerLayout({ user, children }: OrganizerLayoutProps
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen overflow-hidden bg-surface-muted">
+      <div className="flex h-screen overflow-hidden bg-slate-950">
         <Sidebar
           role={UserRole.ORGANIZER}
           items={items}
-          accentClass="bg-emerald-50 text-emerald-600"
+          accentClass="bg-emerald-500/20 text-emerald-400"
         />
 
         <div className="flex flex-1 flex-col overflow-hidden">

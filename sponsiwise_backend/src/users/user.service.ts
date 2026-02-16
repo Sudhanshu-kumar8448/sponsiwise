@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  ForbiddenException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, Logger } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { UserRepository } from './user.repository';
 import type { SafeUser } from './user.repository';
@@ -55,10 +50,7 @@ export class UserService {
     if (callerRole === Role.SUPER_ADMIN) {
       user = await this.userRepository.findById(targetUserId);
     } else {
-      user = await this.userRepository.findByIdAndTenant(
-        targetUserId,
-        callerTenantId,
-      );
+      user = await this.userRepository.findByIdAndTenant(targetUserId, callerTenantId);
     }
 
     if (!user) {
@@ -140,16 +132,10 @@ export class UserService {
     if (callerRole === Role.SUPER_ADMIN) {
       user = await this.userRepository.updateById(targetUserId, data);
     } else {
-      user = await this.userRepository.updateByIdAndTenant(
-        targetUserId,
-        callerTenantId,
-        data,
-      );
+      user = await this.userRepository.updateByIdAndTenant(targetUserId, callerTenantId, data);
     }
 
-    this.logger.log(
-      `User ${targetUserId} updated by ${callerRole} (tenant: ${callerTenantId})`,
-    );
+    this.logger.log(`User ${targetUserId} updated by ${callerRole} (tenant: ${callerTenantId})`);
     return user;
   }
 }

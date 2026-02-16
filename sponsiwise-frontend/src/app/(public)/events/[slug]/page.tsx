@@ -12,11 +12,11 @@ export default async function EventDetailPage({
 }: EventDetailPageProps) {
   const { slug } = await params;
 
-  let event: PublicEvent;
-  try {
-    event = await fetchPublicEventBySlug(slug);
-  } catch {
+  const event = await fetchPublicEventBySlug(slug).catch(() => null);
+
+  if (!event) {
     notFound();
+    return null;
   }
 
   const startDate = new Date(event.start_date).toLocaleDateString("en-US", {

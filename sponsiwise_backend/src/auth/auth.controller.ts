@@ -34,7 +34,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   /**
    * GET /auth/me
@@ -63,12 +63,8 @@ export class AuthController {
    */
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(
-    @Body() dto: LoginDto,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const { accessToken, refreshToken, user } =
-      await this.authService.login(dto);
+  async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
+    const { accessToken, refreshToken, user } = await this.authService.login(dto);
 
     this.setAccessTokenCookie(res, accessToken);
     this.setRefreshTokenCookie(res, refreshToken);
@@ -87,10 +83,7 @@ export class AuthController {
    */
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  async refresh(
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const incomingRefreshToken = req.cookies?.refresh_token;
 
     if (!incomingRefreshToken) {
@@ -173,15 +166,8 @@ export class AuthController {
   @Patch('change-password')
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
-  async changePassword(
-    @CurrentUser() user: JwtPayloadWithClaims,
-    @Body() dto: ChangePasswordDto,
-  ) {
-    return this.authService.changePassword(
-      user.sub,
-      dto.currentPassword,
-      dto.newPassword,
-    );
+  async changePassword(@CurrentUser() user: JwtPayloadWithClaims, @Body() dto: ChangePasswordDto) {
+    return this.authService.changePassword(user.sub, dto.currentPassword, dto.newPassword);
   }
 
   // Future: @Post('logout')

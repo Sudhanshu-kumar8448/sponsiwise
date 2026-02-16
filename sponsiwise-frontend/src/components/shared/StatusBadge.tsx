@@ -30,7 +30,7 @@ interface StatusBadgeProps {
 
 const DEFAULT_FALLBACK: BadgeVariant = {
   label: "Unknown",
-  className: "bg-gray-100 text-gray-600",
+  className: "bg-slate-500/10 text-slate-400",
 };
 
 /**
@@ -40,16 +40,6 @@ const DEFAULT_FALLBACK: BadgeVariant = {
  * by the consumer — this component only renders a styled pill.
  *
  * Server Component safe.
- *
- * @example
- * ```tsx
- * const proposalVariants = {
- *   approved: { label: "Approved", className: "bg-green-100 text-green-700" },
- *   rejected: { label: "Rejected", className: "bg-red-100 text-red-700" },
- * };
- *
- * <StatusBadge status={proposal.status} variants={proposalVariants} />
- * ```
  */
 export default function StatusBadge({
   status,

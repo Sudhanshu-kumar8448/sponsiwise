@@ -16,11 +16,11 @@ export default function AdminLayout({ user, children }: AdminLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen overflow-hidden bg-surface-muted">
+      <div className="flex h-screen overflow-hidden bg-slate-950">
         <Sidebar
           role={UserRole.ADMIN}
           items={items}
-          accentClass="bg-rose-50 text-rose-600"
+          accentClass="bg-rose-500/20 text-rose-400"
         />
 
         <div className="flex flex-1 flex-col overflow-hidden">

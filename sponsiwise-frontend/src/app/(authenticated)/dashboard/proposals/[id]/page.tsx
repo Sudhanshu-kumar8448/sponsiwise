@@ -43,11 +43,10 @@ function ProposalTimeline({ proposal }: { proposal: Proposal }) {
         {steps.map((step) => (
           <li key={step.label} className="flex items-start gap-3">
             <span
-              className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                step.done
-                  ? "bg-blue-600 text-white"
-                  : "border-2 border-gray-300 text-gray-400"
-              }`}
+              className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold ${step.done
+                ? "bg-blue-600 text-white"
+                : "border-2 border-gray-300 text-gray-400"
+                }`}
             >
               {step.done ? "✓" : "·"}
             </span>
@@ -100,11 +99,11 @@ export default async function ProposalDetailPage({
   }
 
   // Default: Sponsor proposal detail
-  let proposal: Proposal;
-  try {
-    proposal = await fetchSponsorProposalById(id);
-  } catch {
+  const proposal = await fetchSponsorProposalById(id).catch(() => null);
+
+  if (!proposal) {
     notFound();
+    return null; // Return to satisfy TS compliance
   }
 
   return (
@@ -179,13 +178,12 @@ export default async function ProposalDetailPage({
           {/* Reviewer notes (only shown when reviewed) */}
           {proposal.reviewer_notes && (
             <div
-              className={`rounded-xl p-6 shadow ${
-                proposal.status === ProposalStatus.APPROVED
-                  ? "border border-green-200 bg-green-50"
-                  : proposal.status === ProposalStatus.REJECTED
-                    ? "border border-red-200 bg-red-50"
-                    : "bg-white"
-              }`}
+              className={`rounded-xl p-6 shadow ${proposal.status === ProposalStatus.APPROVED
+                ? "border border-green-200 bg-green-50"
+                : proposal.status === ProposalStatus.REJECTED
+                  ? "border border-red-200 bg-red-50"
+                  : "bg-white"
+                }`}
             >
               <h2 className="text-lg font-semibold text-gray-900">
                 Reviewer Notes

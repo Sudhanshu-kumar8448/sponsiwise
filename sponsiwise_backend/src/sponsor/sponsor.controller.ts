@@ -32,10 +32,7 @@ export class SponsorController {
    */
   @Get('dashboard/stats')
   async getDashboardStats(@CurrentUser() user: JwtPayloadWithClaims) {
-    return this.sponsorService.getDashboardStats(
-      user.tenant_id,
-      user.company_id,
-    );
+    return this.sponsorService.getDashboardStats(user.tenant_id, user.company_id);
   }
 
   /**
@@ -49,11 +46,7 @@ export class SponsorController {
     @Query() query: SponsorEventsQueryDto,
     @CurrentUser() user: JwtPayloadWithClaims,
   ) {
-    return this.sponsorService.getEvents(
-      user.tenant_id,
-      user.company_id,
-      query,
-    );
+    return this.sponsorService.getEvents(user.tenant_id, user.company_id, query);
   }
 
   /**
@@ -67,11 +60,7 @@ export class SponsorController {
     @Query() query: SponsorProposalsQueryDto,
     @CurrentUser() user: JwtPayloadWithClaims,
   ) {
-    return this.sponsorService.getProposals(
-      user.tenant_id,
-      user.company_id,
-      query,
-    );
+    return this.sponsorService.getProposals(user.tenant_id, user.company_id, query);
   }
 
   /**
@@ -85,10 +74,6 @@ export class SponsorController {
     @Query() query: SponsorSponsorshipsQueryDto,
     @CurrentUser() user: JwtPayloadWithClaims,
   ) {
-    return this.sponsorService.getSponsorships(
-      user.tenant_id,
-      user.company_id,
-      query,
-    );
+    return this.sponsorService.getSponsorships(user.tenant_id, user.company_id, query);
   }
 }

@@ -44,10 +44,7 @@ export class UserRepository {
   /**
    * Find a single user by ID within a specific tenant (password excluded).
    */
-  async findByIdAndTenant(
-    id: string,
-    tenantId: string,
-  ): Promise<SafeUser | null> {
+  async findByIdAndTenant(id: string, tenantId: string): Promise<SafeUser | null> {
     return this.prisma.user.findFirst({
       where: { id, tenantId },
       select: SAFE_USER_SELECT,
@@ -130,10 +127,7 @@ export class UserRepository {
   /**
    * Update a user by ID (no tenant scope — SUPER_ADMIN).
    */
-  async updateById(
-    id: string,
-    data: Prisma.UserUpdateInput,
-  ): Promise<SafeUser> {
+  async updateById(id: string, data: Prisma.UserUpdateInput): Promise<SafeUser> {
     return this.prisma.user.update({
       where: { id },
       data,

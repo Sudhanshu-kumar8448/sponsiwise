@@ -39,11 +39,10 @@ export class TenantGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const tenantOptions =
-      this.reflector.getAllAndOverride<TenantAccessOptions | undefined>(
-        TENANT_KEY,
-        [context.getHandler(), context.getClass()],
-      );
+    const tenantOptions = this.reflector.getAllAndOverride<TenantAccessOptions | undefined>(
+      TENANT_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
     // No @TenantAccess() decorator → no tenant restriction
     if (!tenantOptions) {
@@ -66,9 +65,7 @@ export class TenantGuard implements CanActivate {
     const requestTenantId = this.extractTenantId(request, source, field);
 
     if (!requestTenantId) {
-      this.logger.warn(
-        `Tenant identifier "${field}" not found in request ${source}`,
-      );
+      this.logger.warn(`Tenant identifier "${field}" not found in request ${source}`);
       throw new ForbiddenException('Tenant identifier missing from request');
     }
 
@@ -85,11 +82,7 @@ export class TenantGuard implements CanActivate {
   /**
    * Extract the tenant identifier from the configured request source.
    */
-  private extractTenantId(
-    request: Request,
-    source: string,
-    field: string,
-  ): string | undefined {
+  private extractTenantId(request: Request, source: string, field: string): string | undefined {
     switch (source) {
       case 'param': {
         const paramValue = request.params[field];

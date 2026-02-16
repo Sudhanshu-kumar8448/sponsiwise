@@ -2,8 +2,9 @@
 
 import { useState, createContext, useContext } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Sparkles, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import type { UserRole } from "@/lib/types/roles";
 import type { NavItem } from "./navigation";
@@ -50,7 +51,7 @@ function DynamicIcon({
   name: string;
   className?: string;
 }) {
-  const IconComp = (LucideIcons as Record<string, React.ComponentType<{ className?: string }>>)[name];
+  const IconComp = (LucideIcons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[name];
   if (!IconComp) return <span className={className}>•</span>;
   return <IconComp className={className} />;
 }
@@ -66,7 +67,7 @@ interface SidebarProps {
 export default function Sidebar({
   role,
   items,
-  accentClass = "bg-brand-50 text-brand-600",
+  accentClass = "bg-blue-500/20 text-blue-400",
 }: SidebarProps) {
   const pathname = usePathname();
   const { collapsed, setCollapsed, mobileOpen, setMobileOpen } = useSidebar();
@@ -74,14 +75,18 @@ export default function Sidebar({
   const sidebarContent = (
     <div className="flex h-full flex-col">
       {/* Brand */}
-      <div className="flex h-16 items-center justify-between border-b border-border-light px-4">
+      <div className="flex h-16 items-center justify-between border-b border-slate-800 px-4">
         <Link href="/dashboard" className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-brand-400 shadow-md shadow-brand-500/20">
-            <Sparkles className="h-4 w-4 text-white" />
-          </div>
+          <Image
+            src="/images/logo-icon.svg"
+            alt="SponsiWise"
+            width={32}
+            height={32}
+            className="h-8 w-8 shrink-0"
+          />
           {!collapsed && (
-            <span className="text-lg font-bold text-text-primary">
-              Sponsi<span className="gradient-text">wise</span>
+            <span className="text-lg font-bold text-white">
+              Sponsi<span className="text-blue-400">Wise</span>
             </span>
           )}
         </Link>
@@ -89,7 +94,7 @@ export default function Sidebar({
         {/* Collapse toggle (desktop only) */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="hidden lg:flex h-7 w-7 items-center justify-center rounded-md text-text-muted hover:bg-surface-muted hover:text-text-primary transition-colors"
+          className="hidden lg:flex h-7 w-7 items-center justify-center rounded-md text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? (
@@ -102,7 +107,7 @@ export default function Sidebar({
         {/* Close button (mobile only) */}
         <button
           onClick={() => setMobileOpen(false)}
-          className="flex lg:hidden h-7 w-7 items-center justify-center rounded-md text-text-muted hover:bg-surface-muted"
+          className="flex lg:hidden h-7 w-7 items-center justify-center rounded-md text-slate-400 hover:bg-slate-800"
           aria-label="Close sidebar"
         >
           <X className="h-4 w-4" />
@@ -123,8 +128,8 @@ export default function Sidebar({
                 group flex items-center gap-3 rounded-xl px-3 py-2.5
                 text-sm font-medium transition-all duration-200
                 ${isActive
-                  ? "bg-gradient-to-r from-brand-500/10 to-brand-300/5 text-brand-600 border-l-[3px] border-brand-500 shadow-sm"
-                  : "text-text-secondary hover:bg-surface-muted hover:text-text-primary border-l-[3px] border-transparent"
+                  ? "bg-gradient-to-r from-blue-600/20 to-sky-500/10 text-blue-400 border-l-[3px] border-blue-500 shadow-sm shadow-blue-500/5"
+                  : "text-slate-400 hover:bg-slate-800 hover:text-white border-l-[3px] border-transparent"
                 }
                 ${collapsed ? "justify-center px-2" : ""}
               `}
@@ -133,8 +138,8 @@ export default function Sidebar({
               <DynamicIcon
                 name={item.icon}
                 className={`h-5 w-5 shrink-0 transition-colors ${isActive
-                    ? "text-brand-500"
-                    : "text-text-muted group-hover:text-text-secondary"
+                  ? "text-blue-400"
+                  : "text-slate-500 group-hover:text-slate-300"
                   }`}
               />
               {!collapsed && <span>{item.label}</span>}
@@ -144,7 +149,7 @@ export default function Sidebar({
       </nav>
 
       {/* Role badge */}
-      <div className="border-t border-border-light p-3">
+      <div className="border-t border-slate-800 p-3">
         <span
           className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${accentClass}`}
         >
@@ -161,10 +166,10 @@ export default function Sidebar({
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div
-            className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="absolute left-0 top-0 h-full w-64 bg-white shadow-xl animate-slide-in-left">
+          <aside className="absolute left-0 top-0 h-full w-64 bg-slate-900 shadow-2xl shadow-black/50 animate-slide-in-left">
             {sidebarContent}
           </aside>
         </div>
@@ -173,7 +178,7 @@ export default function Sidebar({
       {/* Desktop sidebar */}
       <aside
         className={`
-          hidden lg:flex h-full flex-col border-r border-border-light bg-white
+          hidden lg:flex h-full flex-col border-r border-slate-800 bg-slate-900
           transition-all duration-300
           ${collapsed ? "w-[68px]" : "w-64"}
         `}

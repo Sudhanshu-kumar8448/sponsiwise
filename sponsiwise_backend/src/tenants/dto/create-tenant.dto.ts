@@ -1,9 +1,4 @@
-import {
-  IsString,
-  IsNotEmpty,
-  MaxLength,
-  Matches,
-} from 'class-validator';
+import { IsString, IsNotEmpty, MaxLength, Matches } from 'class-validator';
 
 /**
  * DTO for creating a new tenant.

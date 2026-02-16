@@ -26,14 +26,14 @@ export default function ErrorState({
   action,
 }: ErrorStateProps) {
   return (
-    <div className="rounded-xl border border-red-200 bg-red-50 p-8 text-center">
+    <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-8 text-center">
       {icon && <span className="text-4xl">{icon}</span>}
       {heading && (
-        <h2 className="mt-3 text-lg font-semibold text-gray-900">
+        <h2 className="mt-3 text-lg font-semibold text-white">
           {heading}
         </h2>
       )}
-      <p className={`${heading ? "mt-1" : "mt-3"} text-sm text-red-700`}>
+      <p className={`${heading ? "mt-1" : "mt-3"} text-sm text-red-300`}>
         {message}
       </p>
       {action && <div className="mt-4">{action}</div>}

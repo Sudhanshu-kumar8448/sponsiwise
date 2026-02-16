@@ -11,10 +11,7 @@ import {
   JOB_EMAIL_EVENT_VERIFIED,
   JOB_EMAIL_EVENT_REJECTED,
 } from '../constants';
-import type {
-  ProposalEmailPayload,
-  VerificationEmailPayload,
-} from '../constants';
+import type { ProposalEmailPayload, VerificationEmailPayload } from '../constants';
 import { EmailService } from '../services';
 import { PrismaService } from '../../common/providers';
 
@@ -44,22 +41,13 @@ export class EmailProcessor extends WorkerHost {
 
     switch (job.name) {
       case JOB_EMAIL_PROPOSAL_SUBMITTED:
-        await this.handleProposalSubmitted(
-          job.name,
-          job.data as ProposalEmailPayload,
-        );
+        await this.handleProposalSubmitted(job.name, job.data as ProposalEmailPayload);
         break;
       case JOB_EMAIL_PROPOSAL_APPROVED:
-        await this.handleProposalApproved(
-          job.name,
-          job.data as ProposalEmailPayload,
-        );
+        await this.handleProposalApproved(job.name, job.data as ProposalEmailPayload);
         break;
       case JOB_EMAIL_PROPOSAL_REJECTED:
-        await this.handleProposalRejected(
-          job.name,
-          job.data as ProposalEmailPayload,
-        );
+        await this.handleProposalRejected(job.name, job.data as ProposalEmailPayload);
         break;
       case JOB_EMAIL_COMPANY_VERIFIED:
         await this.handleCompanyVerification(
@@ -103,14 +91,10 @@ export class EmailProcessor extends WorkerHost {
     jobName: string,
     data: ProposalEmailPayload,
   ): Promise<void> {
-    const recipients = await this.resolveOrganizerEmailsForProposal(
-      data.proposalId,
-    );
+    const recipients = await this.resolveOrganizerEmailsForProposal(data.proposalId);
 
     if (recipients.length === 0) {
-      this.logger.warn(
-        `No organizer email found for proposal ${data.proposalId} — skipping`,
-      );
+      this.logger.warn(`No organizer email found for proposal ${data.proposalId} — skipping`);
       return;
     }
 
@@ -145,18 +129,11 @@ export class EmailProcessor extends WorkerHost {
   /**
    * Proposal approved → notify the sponsor who created the proposal.
    */
-  private async handleProposalApproved(
-    jobName: string,
-    data: ProposalEmailPayload,
-  ): Promise<void> {
-    const recipients = await this.resolveSponsorEmailsForProposal(
-      data.proposalId,
-    );
+  private async handleProposalApproved(jobName: string, data: ProposalEmailPayload): Promise<void> {
+    const recipients = await this.resolveSponsorEmailsForProposal(data.proposalId);
 
     if (recipients.length === 0) {
-      this.logger.warn(
-        `No sponsor email found for proposal ${data.proposalId} — skipping`,
-      );
+      this.logger.warn(`No sponsor email found for proposal ${data.proposalId} — skipping`);
       return;
     }
 
@@ -186,18 +163,11 @@ export class EmailProcessor extends WorkerHost {
   /**
    * Proposal rejected → notify the sponsor who created the proposal.
    */
-  private async handleProposalRejected(
-    jobName: string,
-    data: ProposalEmailPayload,
-  ): Promise<void> {
-    const recipients = await this.resolveSponsorEmailsForProposal(
-      data.proposalId,
-    );
+  private async handleProposalRejected(jobName: string, data: ProposalEmailPayload): Promise<void> {
+    const recipients = await this.resolveSponsorEmailsForProposal(data.proposalId);
 
     if (recipients.length === 0) {
-      this.logger.warn(
-        `No sponsor email found for proposal ${data.proposalId} — skipping`,
-      );
+      this.logger.warn(`No sponsor email found for proposal ${data.proposalId} — skipping`);
       return;
     }
 
@@ -237,9 +207,7 @@ export class EmailProcessor extends WorkerHost {
     const recipients = await this.resolveCompanyUserEmails(data.entityId);
 
     if (recipients.length === 0) {
-      this.logger.warn(
-        `No user emails found for company ${data.entityId} — skipping`,
-      );
+      this.logger.warn(`No user emails found for company ${data.entityId} — skipping`);
       return;
     }
 
@@ -253,9 +221,7 @@ export class EmailProcessor extends WorkerHost {
         html: [
           `<h2>Company ${isApproved ? 'Verified' : 'Rejected'}</h2>`,
           `<p>Your company has been <strong>${outcome}</strong> by a reviewer.</p>`,
-          data.reviewerNotes
-            ? `<p><strong>Reviewer notes:</strong> ${data.reviewerNotes}</p>`
-            : '',
+          data.reviewerNotes ? `<p><strong>Reviewer notes:</strong> ${data.reviewerNotes}</p>` : '',
           `<p style="margin-top:16px;color:#666;">Log in to your dashboard to see full details.</p>`,
         ].join('\n'),
         text: `Your company (${data.entityId}) has been ${outcome}.${data.reviewerNotes ? ` Notes: ${data.reviewerNotes}` : ''}`,
@@ -275,14 +241,10 @@ export class EmailProcessor extends WorkerHost {
     data: VerificationEmailPayload,
     outcome: 'verified' | 'rejected',
   ): Promise<void> {
-    const recipients = await this.resolveOrganizerEmailsForEvent(
-      data.entityId,
-    );
+    const recipients = await this.resolveOrganizerEmailsForEvent(data.entityId);
 
     if (recipients.length === 0) {
-      this.logger.warn(
-        `No organizer email found for event ${data.entityId} — skipping`,
-      );
+      this.logger.warn(`No organizer email found for event ${data.entityId} — skipping`);
       return;
     }
 
@@ -296,9 +258,7 @@ export class EmailProcessor extends WorkerHost {
         html: [
           `<h2>Event ${isApproved ? 'Verified' : 'Rejected'}</h2>`,
           `<p>Your event has been <strong>${outcome}</strong> by a reviewer.</p>`,
-          data.reviewerNotes
-            ? `<p><strong>Reviewer notes:</strong> ${data.reviewerNotes}</p>`
-            : '',
+          data.reviewerNotes ? `<p><strong>Reviewer notes:</strong> ${data.reviewerNotes}</p>` : '',
           `<p style="margin-top:16px;color:#666;">Log in to your dashboard to see full details.</p>`,
         ].join('\n'),
         text: `Your event (${data.entityId}) has been ${outcome}.${data.reviewerNotes ? ` Notes: ${data.reviewerNotes}` : ''}`,
@@ -325,9 +285,7 @@ export class EmailProcessor extends WorkerHost {
    * Path: Proposal → Sponsorship → Event → Organizer → Users (ORGANIZER role)
    * Falls back to Organizer.contactEmail if no users found.
    */
-  private async resolveOrganizerEmailsForProposal(
-    proposalId: string,
-  ): Promise<string[]> {
+  private async resolveOrganizerEmailsForProposal(proposalId: string): Promise<string[]> {
     const proposal = await this.prisma.proposal.findUnique({
       where: { id: proposalId },
       select: {
@@ -368,9 +326,7 @@ export class EmailProcessor extends WorkerHost {
    *
    * Path: Proposal → Sponsorship → Company → Users (SPONSOR role)
    */
-  private async resolveSponsorEmailsForProposal(
-    proposalId: string,
-  ): Promise<string[]> {
+  private async resolveSponsorEmailsForProposal(proposalId: string): Promise<string[]> {
     const proposal = await this.prisma.proposal.findUnique({
       where: { id: proposalId },
       select: {
@@ -389,10 +345,7 @@ export class EmailProcessor extends WorkerHost {
       },
     });
 
-    const emails =
-      proposal?.sponsorship?.company?.users
-        .map((u) => u.email)
-        .filter(Boolean) ?? [];
+    const emails = proposal?.sponsorship?.company?.users.map((u) => u.email).filter(Boolean) ?? [];
 
     return this.dedupe(emails);
   }
@@ -400,9 +353,7 @@ export class EmailProcessor extends WorkerHost {
   /**
    * Resolve all active user emails for a company.
    */
-  private async resolveCompanyUserEmails(
-    companyId: string,
-  ): Promise<string[]> {
+  private async resolveCompanyUserEmails(companyId: string): Promise<string[]> {
     const users = await this.prisma.user.findMany({
       where: { companyId, isActive: true },
       select: { email: true },
@@ -417,9 +368,7 @@ export class EmailProcessor extends WorkerHost {
    * Path: Event → Organizer → Users (ORGANIZER role)
    * Falls back to Organizer.contactEmail.
    */
-  private async resolveOrganizerEmailsForEvent(
-    eventId: string,
-  ): Promise<string[]> {
+  private async resolveOrganizerEmailsForEvent(eventId: string): Promise<string[]> {
     const event = await this.prisma.event.findUnique({
       where: { id: eventId },
       select: {

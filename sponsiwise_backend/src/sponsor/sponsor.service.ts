@@ -1,14 +1,5 @@
-import {
-  Injectable,
-  ForbiddenException,
-  Logger,
-} from '@nestjs/common';
-import {
-  EventStatus,
-  VerificationStatus,
-  SponsorshipStatus,
-  ProposalStatus,
-} from '@prisma/client';
+import { Injectable, ForbiddenException, Logger } from '@nestjs/common';
+import { EventStatus, VerificationStatus, SponsorshipStatus, ProposalStatus } from '@prisma/client';
 import { PrismaService } from '../common/providers/prisma.service';
 import type {
   SponsorEventsQueryDto,
@@ -34,9 +25,7 @@ export class SponsorService {
    */
   private assertCompanyId(companyId?: string): asserts companyId is string {
     if (!companyId) {
-      throw new ForbiddenException(
-        'Sponsor account is not linked to a company',
-      );
+      throw new ForbiddenException('Sponsor account is not linked to a company');
     }
   }
 
@@ -47,48 +36,53 @@ export class SponsorService {
 
     // All proposals belonging to the sponsor's company
     // Proposals link through Sponsorship: Proposal → Sponsorship.companyId
-    const [totalProposals, pendingProposals, approvedProposals, rejectedProposals, activeSponsorships] =
-      await Promise.all([
-        this.prisma.proposal.count({
-          where: {
-            tenantId,
-            isActive: true,
-            sponsorship: { companyId },
-          },
-        }),
-        this.prisma.proposal.count({
-          where: {
-            tenantId,
-            isActive: true,
-            sponsorship: { companyId },
-            status: ProposalStatus.SUBMITTED,
-          },
-        }),
-        this.prisma.proposal.count({
-          where: {
-            tenantId,
-            isActive: true,
-            sponsorship: { companyId },
-            status: ProposalStatus.APPROVED,
-          },
-        }),
-        this.prisma.proposal.count({
-          where: {
-            tenantId,
-            isActive: true,
-            sponsorship: { companyId },
-            status: ProposalStatus.REJECTED,
-          },
-        }),
-        this.prisma.sponsorship.count({
-          where: {
-            tenantId,
-            companyId,
-            isActive: true,
-            status: SponsorshipStatus.ACTIVE,
-          },
-        }),
-      ]);
+    const [
+      totalProposals,
+      pendingProposals,
+      approvedProposals,
+      rejectedProposals,
+      activeSponsorships,
+    ] = await Promise.all([
+      this.prisma.proposal.count({
+        where: {
+          tenantId,
+          isActive: true,
+          sponsorship: { companyId },
+        },
+      }),
+      this.prisma.proposal.count({
+        where: {
+          tenantId,
+          isActive: true,
+          sponsorship: { companyId },
+          status: ProposalStatus.SUBMITTED,
+        },
+      }),
+      this.prisma.proposal.count({
+        where: {
+          tenantId,
+          isActive: true,
+          sponsorship: { companyId },
+          status: ProposalStatus.APPROVED,
+        },
+      }),
+      this.prisma.proposal.count({
+        where: {
+          tenantId,
+          isActive: true,
+          sponsorship: { companyId },
+          status: ProposalStatus.REJECTED,
+        },
+      }),
+      this.prisma.sponsorship.count({
+        where: {
+          tenantId,
+          companyId,
+          isActive: true,
+          status: SponsorshipStatus.ACTIVE,
+        },
+      }),
+    ]);
 
     // Sum the proposed amounts from active sponsorships
     const totalInvestedResult = await this.prisma.sponsorship.findMany({
@@ -125,11 +119,7 @@ export class SponsorService {
 
   // ─── Browsable Events ────────────────────────────────────
 
-  async getEvents(
-    tenantId: string,
-    companyId: string | undefined,
-    query: SponsorEventsQueryDto,
-  ) {
+  async getEvents(tenantId: string, companyId: string | undefined, query: SponsorEventsQueryDto) {
     this.assertCompanyId(companyId);
 
     const { page, page_size, search } = query;

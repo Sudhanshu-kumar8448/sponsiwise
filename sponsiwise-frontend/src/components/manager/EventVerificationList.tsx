@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Calendar, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import { fetchVerifiableEvents } from "@/lib/manager-api";
 import type { VerifiableEvent } from "@/lib/types/manager";
 import { VerificationStatus } from "@/lib/types/manager";
@@ -84,7 +85,7 @@ export default async function EventVerificationList({
       render: (e) => (
         <Link
           href={`/dashboard/events/${e.id}`}
-          className="text-sm font-medium text-amber-700 hover:text-amber-900"
+          className="text-sm font-medium text-blue-400 hover:text-sky-300 transition-colors"
         >
           {e.title}
         </Link>
@@ -103,11 +104,11 @@ export default async function EventVerificationList({
               className="h-6 w-6 rounded-full object-cover"
             />
           ) : (
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 text-xs font-bold text-gray-500">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-700 text-xs font-bold text-slate-300">
               {e.organizer.name.charAt(0)}
             </span>
           )}
-          <span className="text-sm text-gray-700">{e.organizer.name}</span>
+          <span className="text-sm text-slate-300">{e.organizer.name}</span>
         </div>
       ),
     },
@@ -116,7 +117,7 @@ export default async function EventVerificationList({
       header: "Category",
       hideOnMobile: true,
       render: (e) => (
-        <span className="text-sm text-gray-600">{e.category || "—"}</span>
+        <span className="text-sm text-slate-400">{e.category || "—"}</span>
       ),
     },
     {
@@ -124,7 +125,7 @@ export default async function EventVerificationList({
       header: "Date",
       hideOnMobile: true,
       render: (e) => (
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-slate-400">
           {new Date(e.start_date).toLocaleDateString("en-US", {
             month: "short",
             day: "numeric",
@@ -145,7 +146,7 @@ export default async function EventVerificationList({
       header: "Created",
       hideOnMobile: true,
       render: (e) => (
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-slate-500">
           {new Date(e.created_at).toLocaleDateString("en-US", {
             month: "short",
             day: "numeric",
@@ -161,7 +162,7 @@ export default async function EventVerificationList({
       render: (e) => (
         <Link
           href={`/dashboard/events/${e.id}/lifecycle`}
-          className="inline-flex items-center gap-1 rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-100 transition-colors"
+          className="inline-flex items-center gap-1 rounded-lg bg-blue-500/10 px-2.5 py-1 text-xs font-medium text-blue-400 hover:bg-blue-500/20 transition-colors"
         >
           📊 Lifecycle
         </Link>
@@ -172,10 +173,10 @@ export default async function EventVerificationList({
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-white">
           Event Verification
         </h1>
-        <p className="mt-1 text-sm text-gray-600">
+        <p className="mt-1 text-sm text-slate-400">
           Review and verify submitted events.
         </p>
       </div>
@@ -218,7 +219,7 @@ export default async function EventVerificationList({
         />
       ) : (
         <>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-slate-500">
             Showing {events.length} of {total} event
             {total !== 1 ? "s" : ""}
           </p>

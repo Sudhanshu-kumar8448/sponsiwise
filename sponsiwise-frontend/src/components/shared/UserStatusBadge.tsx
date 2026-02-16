@@ -1,20 +1,20 @@
 const statusConfig: Record<string, { label: string; dot: string; classes: string }> = {
   active: {
     label: "Active",
-    dot: "bg-green-500",
-    classes: "bg-green-50 text-green-700",
+    dot: "bg-emerald-500",
+    classes: "bg-emerald-500/10 text-emerald-400",
   },
   inactive: {
     label: "Inactive",
-    dot: "bg-gray-400",
-    classes: "bg-gray-100 text-gray-600",
+    dot: "bg-slate-400",
+    classes: "bg-slate-500/10 text-slate-400",
   },
 };
 
 const fallback = {
   label: "Unknown",
-  dot: "bg-gray-400",
-  classes: "bg-gray-100 text-gray-600",
+  dot: "bg-slate-400",
+  classes: "bg-slate-500/10 text-slate-400",
 };
 
 export default function UserStatusBadge({ status }: { status: string }) {

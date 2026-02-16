@@ -7,15 +7,15 @@ function Bar({
   width: string;
   height?: string;
 }) {
-  return <div className={`${height} ${width} animate-pulse rounded bg-slate-200`} />;
+  return <div className={`${height} ${width} animate-pulse rounded bg-slate-800`} />;
 }
 
 function Circle({ size = "h-8 w-8" }: { size?: string }) {
-  return <div className={`${size} animate-pulse rounded-full bg-slate-200`} />;
+  return <div className={`${size} animate-pulse rounded-full bg-slate-800`} />;
 }
 
 function Pill({ width = "w-20" }: { width?: string }) {
-  return <div className={`h-6 ${width} animate-pulse rounded-full bg-slate-200`} />;
+  return <div className={`h-6 ${width} animate-pulse rounded-full bg-slate-800`} />;
 }
 
 // ─── Composites ────────────────────────────────────────────────────────
@@ -23,10 +23,10 @@ function Pill({ width = "w-20" }: { width?: string }) {
 /** Skeleton for a search bar */
 export function SearchBarSkeleton() {
   return (
-    <div className="rounded-xl bg-white p-4 shadow">
+    <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
       <div className="flex gap-3">
-        <div className="h-9 flex-1 rounded bg-gray-200" />
-        <div className="h-9 w-24 rounded bg-gray-200" />
+        <div className="h-9 flex-1 rounded-xl bg-slate-800" />
+        <div className="h-9 w-24 rounded-xl bg-slate-800" />
       </div>
     </div>
   );
@@ -46,7 +46,7 @@ export function FilterTabsSkeleton({ count = 4 }: { count?: number }) {
 /** Skeleton for a single stat card */
 export function StatCardSkeleton() {
   return (
-    <div className="rounded-xl bg-white p-5 shadow">
+    <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
       <Bar width="w-24" height="h-3" />
       <div className="mt-3">
         <Bar width="w-16" height="h-7" />
@@ -86,8 +86,8 @@ export function TableSkeleton({
   columns?: number;
 }) {
   return (
-    <div className="overflow-hidden rounded-xl bg-white shadow">
-      <div className="divide-y divide-gray-200">
+    <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
+      <div className="divide-y divide-slate-800">
         {Array.from({ length: rows }).map((_, i) => (
           <TableRowSkeleton key={i} columns={columns} />
         ))}
@@ -121,8 +121,8 @@ export function AvatarTableSkeleton({
   columns?: number;
 }) {
   return (
-    <div className="overflow-hidden rounded-xl bg-white shadow">
-      <div className="divide-y divide-gray-200">
+    <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
+      <div className="divide-y divide-slate-800">
         {Array.from({ length: rows }).map((_, i) => (
           <AvatarTableRowSkeleton key={i} columns={columns} />
         ))}
@@ -138,7 +138,7 @@ export function ListRowSkeleton({ count = 8 }: { count?: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="flex items-start gap-4 rounded-lg bg-white px-5 py-4 shadow-sm"
+          className="flex items-start gap-4 rounded-2xl border border-slate-800 bg-slate-900 px-5 py-4"
         >
           <Circle size="h-9 w-9" />
           <div className="flex-1 space-y-2">
@@ -162,7 +162,7 @@ export function DetailCardSkeleton({
   fields?: number;
 }) {
   return (
-    <div className="rounded-xl bg-white p-6 shadow">
+    <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
       <Bar width="w-32" height="h-4" />
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         {Array.from({ length: fields }).map((_, i) => (
@@ -277,7 +277,7 @@ export function DetailPageSkeleton({
         </div>
         <div className="space-y-6">
           {Array.from({ length: sidebarCards }).map((_, i) => (
-            <div key={i} className="rounded-xl bg-white p-6 shadow">
+            <div key={i} className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
               <Bar width="w-28" height="h-4" />
               <div className="mt-4">
                 <Bar width="w-full" height="h-10" />

@@ -1,10 +1,4 @@
-import {
-  IsOptional,
-  IsString,
-  IsBoolean,
-  IsEnum,
-  MaxLength,
-} from 'class-validator';
+import { IsOptional, IsString, IsBoolean, IsEnum, MaxLength } from 'class-validator';
 import { SponsorshipStatus } from '@prisma/client';
 
 /**

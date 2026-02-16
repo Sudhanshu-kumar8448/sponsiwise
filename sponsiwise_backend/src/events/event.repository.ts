@@ -33,10 +33,7 @@ export class EventRepository {
   /**
    * Find a single event by ID within a specific tenant.
    */
-  async findByIdAndTenant(
-    id: string,
-    tenantId: string,
-  ): Promise<Event | null> {
+  async findByIdAndTenant(id: string, tenantId: string): Promise<Event | null> {
     return this.prisma.event.findFirst({ where: { id, tenantId } });
   }
 
@@ -148,10 +145,7 @@ export class EventRepository {
   /**
    * Update an event by ID (no tenant scope — SUPER_ADMIN).
    */
-  async updateById(
-    id: string,
-    data: Prisma.EventUpdateInput,
-  ): Promise<Event> {
+  async updateById(id: string, data: Prisma.EventUpdateInput): Promise<Event> {
     return this.prisma.event.update({
       where: { id },
       data,

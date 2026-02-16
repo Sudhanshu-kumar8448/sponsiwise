@@ -10,11 +10,7 @@ import { Role } from '@prisma/client';
 import { SponsorshipRepository } from './sponsorship.repository';
 import { CompanyRepository } from '../companies/company.repository';
 import { EventRepository } from '../events/event.repository';
-import {
-  CreateSponsorshipDto,
-  UpdateSponsorshipDto,
-  ListSponsorshipsQueryDto,
-} from './dto';
+import { CreateSponsorshipDto, UpdateSponsorshipDto, ListSponsorshipsQueryDto } from './dto';
 
 /**
  * SponsorshipService — business logic for sponsorship management.
@@ -67,9 +63,7 @@ export class SponsorshipService {
       dto.eventId,
     );
     if (existing) {
-      throw new ConflictException(
-        'A sponsorship already exists for this company–event pair',
-      );
+      throw new ConflictException('A sponsorship already exists for this company–event pair');
     }
 
     // 3. Derive tenantId from the company (guaranteed same as event)
@@ -193,10 +187,7 @@ export class SponsorshipService {
     let sponsorship: Sponsorship;
 
     if (callerRole === Role.SUPER_ADMIN) {
-      sponsorship = await this.sponsorshipRepository.updateById(
-        sponsorshipId,
-        data,
-      );
+      sponsorship = await this.sponsorshipRepository.updateById(sponsorshipId, data);
     } else {
       sponsorship = await this.sponsorshipRepository.updateByIdAndTenant(
         sponsorshipId,
@@ -242,17 +233,13 @@ export class SponsorshipService {
 
     // Company and Event MUST share the same tenant
     if (company.tenantId !== event.tenantId) {
-      throw new ForbiddenException(
-        'Company and Event must belong to the same tenant',
-      );
+      throw new ForbiddenException('Company and Event must belong to the same tenant');
     }
 
     // For non-super-admins, the entities must be in the caller's tenant
     if (callerRole !== Role.SUPER_ADMIN) {
       if (company.tenantId !== callerTenantId) {
-        throw new ForbiddenException(
-          'Cannot create sponsorships for entities outside your tenant',
-        );
+        throw new ForbiddenException('Cannot create sponsorships for entities outside your tenant');
       }
     }
 

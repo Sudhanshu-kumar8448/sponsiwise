@@ -14,11 +14,7 @@ import { AuthGuard, RoleGuard } from '../common/guards';
 import { Roles, CurrentUser } from '../common/decorators';
 import type { JwtPayloadWithClaims } from '../auth/interfaces';
 import { OrganizerService } from './organizer.service';
-import {
-  CreateOrganizerDto,
-  UpdateOrganizerDto,
-  ListOrganizersQueryDto,
-} from './dto';
+import { CreateOrganizerDto, UpdateOrganizerDto, ListOrganizersQueryDto } from './dto';
 
 /**
  * OrganizersController — HTTP layer for organizer management.
@@ -52,12 +48,7 @@ export class OrganizersController {
     @CurrentUser() user: JwtPayloadWithClaims,
     @Query('tenantId') tenantIdOverride?: string,
   ) {
-    return this.organizerService.create(
-      dto,
-      user.role,
-      user.tenant_id,
-      tenantIdOverride,
-    );
+    return this.organizerService.create(dto, user.role, user.tenant_id, tenantIdOverride);
   }
 
   // ─── READ ────────────────────────────────────────────────
@@ -71,10 +62,7 @@ export class OrganizersController {
   @Get()
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.USER, Role.ADMIN, Role.SUPER_ADMIN)
-  async findAll(
-    @Query() query: ListOrganizersQueryDto,
-    @CurrentUser() user: JwtPayloadWithClaims,
-  ) {
+  async findAll(@Query() query: ListOrganizersQueryDto, @CurrentUser() user: JwtPayloadWithClaims) {
     return this.organizerService.findAll(query, user.role, user.tenant_id);
   }
 

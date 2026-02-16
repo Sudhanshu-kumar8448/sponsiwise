@@ -1,10 +1,4 @@
-import {
-  IsString,
-  IsOptional,
-  IsUrl,
-  IsBoolean,
-  MaxLength,
-} from 'class-validator';
+import { IsString, IsOptional, IsUrl, IsBoolean, MaxLength } from 'class-validator';
 
 /**
  * DTO for updating an existing company.

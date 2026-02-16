@@ -33,19 +33,14 @@ export class ProposalRepository {
   /**
    * Find a single proposal by ID within a specific tenant.
    */
-  async findByIdAndTenant(
-    id: string,
-    tenantId: string,
-  ): Promise<Proposal | null> {
+  async findByIdAndTenant(id: string, tenantId: string): Promise<Proposal | null> {
     return this.prisma.proposal.findFirst({ where: { id, tenantId } });
   }
 
   /**
    * List proposals for a given sponsorship.
    */
-  async findBySponsorshipId(
-    sponsorshipId: string,
-  ): Promise<Proposal[]> {
+  async findBySponsorshipId(sponsorshipId: string): Promise<Proposal[]> {
     return this.prisma.proposal.findMany({
       where: { sponsorshipId },
       orderBy: { createdAt: 'desc' },
@@ -135,10 +130,7 @@ export class ProposalRepository {
   /**
    * Update a proposal by ID (no tenant scope — SUPER_ADMIN).
    */
-  async updateById(
-    id: string,
-    data: Prisma.ProposalUpdateInput,
-  ): Promise<Proposal> {
+  async updateById(id: string, data: Prisma.ProposalUpdateInput): Promise<Proposal> {
     return this.prisma.proposal.update({
       where: { id },
       data,

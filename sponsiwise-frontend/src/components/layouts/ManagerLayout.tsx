@@ -16,11 +16,11 @@ export default function ManagerLayout({ user, children }: ManagerLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen overflow-hidden bg-surface-muted">
+      <div className="flex h-screen overflow-hidden bg-slate-950">
         <Sidebar
           role={UserRole.MANAGER}
           items={items}
-          accentClass="bg-brand-50 text-brand-600"
+          accentClass="bg-blue-500/20 text-blue-400"
         />
 
         <div className="flex flex-1 flex-col overflow-hidden">

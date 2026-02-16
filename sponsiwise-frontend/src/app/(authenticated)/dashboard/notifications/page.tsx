@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Bell, ChevronLeft, AlertCircle } from "lucide-react";
 import { fetchNotifications } from "@/lib/notifications-api";
 import type { Notification } from "@/lib/types/notifications";
 import { normalizeError } from "@/lib/errors";
@@ -39,18 +40,19 @@ export default async function NotificationsPage({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
-          <p className="mt-1 text-sm text-gray-600">
+          <h1 className="text-2xl font-bold text-white">Notifications</h1>
+          <p className="mt-1 text-sm text-slate-400">
             Your recent notifications and alerts.
           </p>
         </div>
         <Link
           href="/dashboard"
-          className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+          className="inline-flex items-center gap-1 self-start rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-300 transition-all hover:border-slate-600 hover:bg-slate-800 hover:text-white sm:self-center"
         >
-          ← Dashboard
+          <ChevronLeft className="h-4 w-4" />
+          Dashboard
         </Link>
       </div>
 

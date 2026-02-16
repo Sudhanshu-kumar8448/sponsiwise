@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import type { Company } from '@prisma/client';
 import { Role } from '@prisma/client';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -52,9 +48,7 @@ export class CompanyService {
     // ADMIN always creates in their own tenant.
     // SUPER_ADMIN can optionally target a different tenant.
     const tenantId =
-      callerRole === Role.SUPER_ADMIN && tenantIdOverride
-        ? tenantIdOverride
-        : callerTenantId;
+      callerRole === Role.SUPER_ADMIN && tenantIdOverride ? tenantIdOverride : callerTenantId;
 
     const company = await this.companyRepository.create({
       name: dto.name,
@@ -65,9 +59,7 @@ export class CompanyService {
       tenant: { connect: { id: tenantId } },
     });
 
-    this.logger.log(
-      `Company ${company.id} created by ${callerRole} in tenant ${tenantId}`,
-    );
+    this.logger.log(`Company ${company.id} created by ${callerRole} in tenant ${tenantId}`);
     return company;
   }
 
@@ -78,20 +70,13 @@ export class CompanyService {
    * - USER / ADMIN: must be within their own tenant
    * - SUPER_ADMIN: any tenant
    */
-  async findById(
-    companyId: string,
-    callerRole: Role,
-    callerTenantId: string,
-  ): Promise<Company> {
+  async findById(companyId: string, callerRole: Role, callerTenantId: string): Promise<Company> {
     let company: Company | null;
 
     if (callerRole === Role.SUPER_ADMIN) {
       company = await this.companyRepository.findById(companyId);
     } else {
-      company = await this.companyRepository.findByIdAndTenant(
-        companyId,
-        callerTenantId,
-      );
+      company = await this.companyRepository.findByIdAndTenant(companyId, callerTenantId);
     }
 
     if (!company) {
@@ -171,16 +156,10 @@ export class CompanyService {
     if (callerRole === Role.SUPER_ADMIN) {
       company = await this.companyRepository.updateById(companyId, data);
     } else {
-      company = await this.companyRepository.updateByIdAndTenant(
-        companyId,
-        callerTenantId,
-        data,
-      );
+      company = await this.companyRepository.updateByIdAndTenant(companyId, callerTenantId, data);
     }
 
-    this.logger.log(
-      `Company ${companyId} updated by ${callerRole} (tenant: ${callerTenantId})`,
-    );
+    this.logger.log(`Company ${companyId} updated by ${callerRole} (tenant: ${callerTenantId})`);
     return company;
   }
 
@@ -205,7 +184,9 @@ export class CompanyService {
     const company =
       reviewerRole === Role.SUPER_ADMIN
         ? await this.companyRepository.updateById(companyId, { isActive: true })
-        : await this.companyRepository.updateByIdAndTenant(companyId, reviewerTenantId, { isActive: true });
+        : await this.companyRepository.updateByIdAndTenant(companyId, reviewerTenantId, {
+            isActive: true,
+          });
 
     this.logger.log(
       `Company ${companyId} verified by ${reviewerRole}:${reviewerId} (tenant: ${existing.tenantId})`,
@@ -259,7 +240,9 @@ export class CompanyService {
     const company =
       reviewerRole === Role.SUPER_ADMIN
         ? await this.companyRepository.updateById(companyId, { isActive: false })
-        : await this.companyRepository.updateByIdAndTenant(companyId, reviewerTenantId, { isActive: false });
+        : await this.companyRepository.updateByIdAndTenant(companyId, reviewerTenantId, {
+            isActive: false,
+          });
 
     this.logger.log(
       `Company ${companyId} rejected by ${reviewerRole}:${reviewerId} (tenant: ${existing.tenantId})`,

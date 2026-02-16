@@ -9,12 +9,7 @@ import { AuditLogsModule } from '../audit-logs/audit-logs.module';
 @Module({
   imports: [AuditLogsModule],
   controllers: [ProposalsController],
-  providers: [
-    ProposalService,
-    ProposalRepository,
-    SponsorshipRepository,
-    PrismaService,
-  ],
+  providers: [ProposalService, ProposalRepository, SponsorshipRepository, PrismaService],
   exports: [ProposalService, ProposalRepository],
 })
 export class ProposalsModule {}

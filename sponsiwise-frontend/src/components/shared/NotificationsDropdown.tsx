@@ -1,5 +1,8 @@
+"use client";
+
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { fetchNotifications } from "@/lib/notifications-api";
+import { apiClient } from "@/lib/api-client";
 import type { Notification } from "@/lib/types/notifications";
 
 // ─── Severity styling ──────────────────────────────────────────────────
@@ -8,10 +11,10 @@ const severityConfig: Record<
   Notification["severity"],
   { dot: string; bg: string }
 > = {
-  info: { dot: "bg-blue-400", bg: "bg-blue-50" },
-  success: { dot: "bg-green-500", bg: "bg-green-50" },
-  warning: { dot: "bg-amber-500", bg: "bg-amber-50" },
-  error: { dot: "bg-red-500", bg: "bg-red-50" },
+  info: { dot: "bg-blue-400", bg: "bg-blue-500/5" },
+  success: { dot: "bg-emerald-500", bg: "bg-emerald-500/5" },
+  warning: { dot: "bg-amber-500", bg: "bg-amber-500/5" },
+  error: { dot: "bg-red-500", bg: "bg-red-500/5" },
 };
 
 // ─── Time formatting ───────────────────────────────────────────────────
@@ -44,9 +47,8 @@ function NotificationItem({ item }: { item: Notification }) {
 
   const content = (
     <div
-      className={`flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-gray-50 ${
-        !item.read ? style.bg : ""
-      }`}
+      className={`flex items-start gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-slate-700/50 ${!item.read ? style.bg : ""
+        }`}
     >
       {/* Unread dot */}
       <div className="mt-1.5 flex-shrink-0">
@@ -60,18 +62,17 @@ function NotificationItem({ item }: { item: Notification }) {
       {/* Text */}
       <div className="min-w-0 flex-1">
         <p
-          className={`text-sm leading-snug ${
-            !item.read
-              ? "font-medium text-gray-900"
-              : "text-gray-600"
-          }`}
+          className={`text-sm leading-snug ${!item.read
+            ? "font-medium text-white"
+            : "text-slate-400"
+            }`}
         >
           {item.title}
         </p>
-        <p className="mt-0.5 text-xs text-gray-500 line-clamp-2">
+        <p className="mt-0.5 text-xs text-slate-500 line-clamp-2">
           {item.message}
         </p>
-        <p className="mt-1 text-[10px] text-gray-400">
+        <p className="mt-1 text-[10px] text-slate-600">
           {timeAgo(item.createdAt)}
         </p>
       </div>
@@ -89,40 +90,60 @@ function NotificationItem({ item }: { item: Notification }) {
   return content;
 }
 
-// ─── Main dropdown (server-rendered) ───────────────────────────────────
+// ─── Main dropdown (client-rendered) ───────────────────────────────────
 
 /**
  * Notifications dropdown for the TopNav.
  *
- * Server Component — fetches the latest N notifications server-side.
- * Renders as a static list within the nav bar.
- *
- * Uses CSS :focus-within to toggle visibility without client JS.
+ * Client Component — fetches notifications via the client-side apiClient.
  * Falls back gracefully if the API is unavailable.
  */
-export default async function NotificationsDropdown() {
-  let notifications: Notification[] = [];
-  let unreadCount = 0;
-  let error = false;
+export default function NotificationsDropdown() {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [error, setError] = useState(false);
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
 
-  try {
-    const res = await fetchNotifications({ page: 1, pageSize: 8 });
-    notifications = res.data;
-    unreadCount = notifications.filter((n) => !n.read).length;
-  } catch {
-    // API not available — degrade gracefully, don't break the layout
-    error = true;
-  }
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await apiClient.get<{ data: Notification[] }>(
+        "/notifications?page=1&pageSize=8"
+      );
+      const data = res.data ?? [];
+      setNotifications(data);
+      setUnreadCount(data.filter((n) => !n.read).length);
+      setError(false);
+    } catch {
+      setError(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Close on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   return (
-    <div className="relative">
-      {/* Trigger — uses a button + focus-within for pure CSS toggle */}
+    <div className="relative" ref={ref}>
+      {/* Trigger button */}
       <button
         type="button"
+        onClick={() => setOpen(!open)}
         className="relative flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-blue-400/10 hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
         aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
       >
-        {/* Bell icon (inline SVG — no dependency needed) */}
+        {/* Bell icon */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="h-5 w-5"
@@ -146,54 +167,56 @@ export default async function NotificationsDropdown() {
         )}
       </button>
 
-      {/* Dropdown panel — visible on :focus-within */}
-      <div className="invisible absolute right-0 top-full z-50 mt-2 w-80 rounded-xl border border-gray-200 bg-white opacity-0 shadow-lg transition-all focus-within:visible focus-within:opacity-100 peer-focus:visible peer-focus:opacity-100 [div:focus-within>&]:visible [div:focus-within>&]:opacity-100">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-          <h3 className="text-sm font-semibold text-gray-900">
-            Notifications
-          </h3>
-          {unreadCount > 0 && (
-            <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-600">
-              {unreadCount} new
-            </span>
-          )}
-        </div>
-
-        {/* Content */}
-        <div className="max-h-96 overflow-y-auto py-1">
-          {error ? (
-            <div className="px-4 py-6 text-center text-sm text-gray-400">
-              Unable to load notifications.
-            </div>
-          ) : notifications.length === 0 ? (
-            <div className="px-4 py-8 text-center">
-              <span className="text-3xl">🔔</span>
-              <p className="mt-2 text-sm text-gray-500">
-                No notifications yet
-              </p>
-            </div>
-          ) : (
-            <div className="divide-y divide-gray-50">
-              {notifications.map((item) => (
-                <NotificationItem key={item.id} item={item} />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        {notifications.length > 0 && (
-          <div className="border-t border-gray-100 px-4 py-2">
-            <Link
-              href="/dashboard/notifications"
-              className="block text-center text-xs font-medium text-blue-400 transition-colors hover:text-blue-600"
-            >
-              View all notifications
-            </Link>
+      {/* Dropdown panel */}
+      {open && (
+        <div className="animate-scale-in absolute right-0 top-full z-50 mt-2 w-80 rounded-2xl border border-slate-700 bg-slate-800 shadow-xl shadow-black/30">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-slate-700 px-4 py-3">
+            <h3 className="text-sm font-semibold text-white">
+              Notifications
+            </h3>
+            {unreadCount > 0 && (
+              <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-medium text-blue-400">
+                {unreadCount} new
+              </span>
+            )}
           </div>
-        )}
-      </div>
+
+          {/* Content */}
+          <div className="max-h-96 overflow-y-auto py-1">
+            {error ? (
+              <div className="px-4 py-6 text-center text-sm text-slate-500">
+                Unable to load notifications.
+              </div>
+            ) : notifications.length === 0 ? (
+              <div className="px-4 py-8 text-center">
+                <span className="text-3xl">🔔</span>
+                <p className="mt-2 text-sm text-slate-400">
+                  No notifications yet
+                </p>
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-700/50">
+                {notifications.map((item) => (
+                  <NotificationItem key={item.id} item={item} />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          {notifications.length > 0 && (
+            <div className="border-t border-slate-700 px-4 py-2">
+              <Link
+                href="/dashboard/notifications"
+                className="block text-center text-xs font-medium text-blue-400 transition-colors hover:text-sky-300"
+              >
+                View all notifications
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

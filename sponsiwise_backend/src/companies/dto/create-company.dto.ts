@@ -1,11 +1,4 @@
-import {
-  IsString,
-  IsNotEmpty,
-  IsEnum,
-  IsOptional,
-  IsUrl,
-  MaxLength,
-} from 'class-validator';
+import { IsString, IsNotEmpty, IsEnum, IsOptional, IsUrl, MaxLength } from 'class-validator';
 import { CompanyType } from '@prisma/client';
 
 /**

@@ -53,10 +53,7 @@ export class UsersController {
   @Get()
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
-  async findAll(
-    @Query() query: ListUsersQueryDto,
-    @CurrentUser() user: JwtPayloadWithClaims,
-  ) {
+  async findAll(@Query() query: ListUsersQueryDto, @CurrentUser() user: JwtPayloadWithClaims) {
     return this.userService.findAll(query, user.role, user.tenant_id);
   }
 

@@ -24,4 +24,4 @@ import { PrismaService } from '../common/providers/prisma.service';
   controllers: [ManagerDashboardController],
   providers: [ManagerDashboardService, PrismaService],
 })
-export class ManagerDashboardModule { }
+export class ManagerDashboardModule {}

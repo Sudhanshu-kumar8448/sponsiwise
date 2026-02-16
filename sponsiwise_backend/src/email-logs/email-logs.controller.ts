@@ -1,9 +1,4 @@
-import {
-  Controller,
-  Get,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { IsOptional, IsString, IsInt, Min, Max, IsIn } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Role } from '@prisma/client';
@@ -55,10 +50,7 @@ export class EmailLogsController {
   constructor(private readonly emailLogsService: EmailLogsService) {}
 
   @Get('email-logs')
-  async getEmailLogs(
-    @Query() query: EmailLogsQueryDto,
-    @CurrentUser() user: JwtPayloadWithClaims,
-  ) {
+  async getEmailLogs(@Query() query: EmailLogsQueryDto, @CurrentUser() user: JwtPayloadWithClaims) {
     return this.emailLogsService.findByTenant({
       tenantId: user.tenant_id,
       page: query.page,

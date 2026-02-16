@@ -56,10 +56,7 @@ export class TenantController {
   @Get()
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.SUPER_ADMIN)
-  async findAll(
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-  ) {
+  async findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
     return this.tenantService.findAll(
       page ? parseInt(page, 10) : 1,
       limit ? parseInt(limit, 10) : 20,
@@ -88,10 +85,7 @@ export class TenantController {
   @Patch(':id')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.SUPER_ADMIN)
-  async update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: UpdateTenantDto,
-  ) {
+  async update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateTenantDto) {
     return this.tenantService.update(id, dto);
   }
 }

@@ -41,7 +41,7 @@ import {
 @UseGuards(AuthGuard, RoleGuard)
 @Roles(Role.MANAGER)
 export class ManagerDashboardController {
-  constructor(private readonly service: ManagerDashboardService) { }
+  constructor(private readonly service: ManagerDashboardService) {}
 
   // ─── Dashboard Stats ─────────────────────────────────────
 
@@ -74,13 +74,7 @@ export class ManagerDashboardController {
     @Body() dto: VerifyEntityDto,
     @CurrentUser() user: JwtPayloadWithClaims,
   ) {
-    return this.service.verifyCompany(
-      user.tenant_id,
-      id,
-      dto,
-      user.sub,
-      user.role,
-    );
+    return this.service.verifyCompany(user.tenant_id, id, dto, user.sub, user.role);
   }
 
   // ─── Events ──────────────────────────────────────────────
@@ -107,13 +101,7 @@ export class ManagerDashboardController {
     @Body() dto: VerifyEntityDto,
     @CurrentUser() user: JwtPayloadWithClaims,
   ) {
-    return this.service.verifyEvent(
-      user.tenant_id,
-      id,
-      dto,
-      user.sub,
-      user.role,
-    );
+    return this.service.verifyEvent(user.tenant_id, id, dto, user.sub, user.role);
   }
 
   // ─── Activity Log ────────────────────────────────────────

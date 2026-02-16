@@ -21,9 +21,7 @@ const DEFAULT_TTL = 60;
 export class CacheService {
   private readonly logger = new Logger(CacheService.name);
 
-  constructor(
-    @Inject(REDIS_CLIENT) private readonly redis: Redis,
-  ) {}
+  constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) {}
 
   // ─── CORE OPERATIONS ────────────────────────────────────
 
@@ -79,13 +77,7 @@ export class CacheService {
     try {
       let cursor = '0';
       do {
-        const [nextCursor, keys] = await this.redis.scan(
-          cursor,
-          'MATCH',
-          pattern,
-          'COUNT',
-          100,
-        );
+        const [nextCursor, keys] = await this.redis.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
         cursor = nextCursor;
         if (keys.length > 0) {
           await this.redis.del(...keys);

@@ -14,11 +14,7 @@ import { AuthGuard, RoleGuard } from '../common/guards';
 import { Roles, CurrentUser } from '../common/decorators';
 import type { JwtPayloadWithClaims } from '../auth/interfaces';
 import { SponsorshipService } from './sponsorship.service';
-import {
-  CreateSponsorshipDto,
-  UpdateSponsorshipDto,
-  ListSponsorshipsQueryDto,
-} from './dto';
+import { CreateSponsorshipDto, UpdateSponsorshipDto, ListSponsorshipsQueryDto } from './dto';
 
 /**
  * SponsorshipsController — HTTP layer for sponsorship management.
@@ -49,10 +45,7 @@ export class SponsorshipsController {
   @Post()
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
-  async create(
-    @Body() dto: CreateSponsorshipDto,
-    @CurrentUser() user: JwtPayloadWithClaims,
-  ) {
+  async create(@Body() dto: CreateSponsorshipDto, @CurrentUser() user: JwtPayloadWithClaims) {
     return this.sponsorshipService.create(dto, user.role, user.tenant_id);
   }
 

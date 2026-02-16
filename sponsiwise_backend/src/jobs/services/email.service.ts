@@ -74,8 +74,7 @@ export class EmailService {
         status: 'SENT',
       });
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
 
       this.logger.error(
         `Failed to send email to ${options.to}: ${errorMessage}`,

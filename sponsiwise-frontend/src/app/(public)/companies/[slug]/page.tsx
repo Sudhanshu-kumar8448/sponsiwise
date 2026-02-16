@@ -12,11 +12,11 @@ export default async function CompanyProfilePage({
 }: CompanyProfilePageProps) {
   const { slug } = await params;
 
-  let company: PublicCompany;
-  try {
-    company = await fetchPublicCompany(slug);
-  } catch {
+  const company = await fetchPublicCompany(slug).catch(() => null);
+
+  if (!company) {
     notFound();
+    return null;
   }
 
   return (
