@@ -42,7 +42,7 @@ export class EventService {
     private readonly auditLogService: AuditLogService,
     private readonly eventEmitter: EventEmitter2,
     private readonly cacheService: CacheService,
-  ) {}
+  ) { }
 
   // ─── CREATE ──────────────────────────────────────────────
 
@@ -293,8 +293,8 @@ export class EventService {
       reviewerRole === Role.SUPER_ADMIN
         ? await this.eventRepository.updateById(eventId, { isActive: true })
         : await this.eventRepository.updateByIdAndTenant(eventId, reviewerTenantId, {
-            isActive: true,
-          });
+          isActive: true,
+        });
 
     this.logger.log(
       `Event ${eventId} verified by ${reviewerRole}:${reviewerId} (tenant: ${existing.tenantId})`,
@@ -352,8 +352,8 @@ export class EventService {
       reviewerRole === Role.SUPER_ADMIN
         ? await this.eventRepository.updateById(eventId, { isActive: false })
         : await this.eventRepository.updateByIdAndTenant(eventId, reviewerTenantId, {
-            isActive: false,
-          });
+          isActive: false,
+        });
 
     this.logger.log(
       `Event ${eventId} rejected by ${reviewerRole}:${reviewerId} (tenant: ${existing.tenantId})`,
@@ -386,6 +386,31 @@ export class EventService {
     );
 
     // Invalidate event list caches
+    this.cacheService.delByPattern('events:list:*');
+
+    return event;
+  }
+
+  // ─── DELETE (Soft) ───────────────────────────────────────
+
+  /**
+   * Soft delete an event (set isActive = false).
+   * - ADMIN: within their own tenant
+   * - SUPER_ADMIN: any tenant
+   */
+  async remove(eventId: string, callerRole: Role, callerTenantId: string): Promise<Event> {
+    const existing = await this.findById(eventId, callerRole, callerTenantId);
+
+    const event =
+      callerRole === Role.SUPER_ADMIN
+        ? await this.eventRepository.updateById(eventId, { isActive: false })
+        : await this.eventRepository.updateByIdAndTenant(eventId, callerTenantId, {
+          isActive: false,
+        });
+
+    this.logger.log(`Event ${eventId} soft-deleted by ${callerRole} (tenant: ${callerTenantId})`);
+
+    // Invalidate caches
     this.cacheService.delByPattern('events:list:*');
 
     return event;

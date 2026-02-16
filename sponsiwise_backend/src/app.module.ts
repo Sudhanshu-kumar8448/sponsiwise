@@ -27,6 +27,7 @@ import { EmailLogsModule } from './email-logs/email-logs.module';
 import { ManagerLifecycleModule } from './manager-lifecycle/manager-lifecycle.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { CompanyLifecycleModule } from './company-lifecycle/company-lifecycle.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { CompanyLifecycleModule } from './company-lifecycle/company-lifecycle.mo
     CacheModule,
     QueueModule,
     WorkerModule,
+    HealthModule,
     AuthModule,
     UsersModule,
     TenantsModule,

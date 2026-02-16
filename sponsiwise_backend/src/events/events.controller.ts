@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Param,
   Body,
   Query,
@@ -35,7 +36,7 @@ import { CreateEventDto, UpdateEventDto, ListEventsQueryDto } from './dto';
  */
 @Controller('events')
 export class EventsController {
-  constructor(private readonly eventService: EventService) {}
+  constructor(private readonly eventService: EventService) { }
 
   // ─── CREATE ──────────────────────────────────────────────
 
@@ -99,5 +100,23 @@ export class EventsController {
     @CurrentUser() user: JwtPayloadWithClaims,
   ) {
     return this.eventService.update(id, dto, user.role, user.tenant_id);
+  }
+
+  // ─── DELETE ──────────────────────────────────────────────
+
+  /**
+   * DELETE /events/:id
+   * Soft delete an event.
+   * - ADMIN:       within own tenant
+   * - SUPER_ADMIN: any tenant
+   */
+  @Delete(':id')
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  async remove(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: JwtPayloadWithClaims,
+  ) {
+    return this.eventService.remove(id, user.role, user.tenant_id);
   }
 }

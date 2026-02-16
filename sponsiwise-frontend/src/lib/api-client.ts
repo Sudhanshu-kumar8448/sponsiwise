@@ -1,156 +1,99 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-if (!API_BASE_URL) {
-  throw new Error("NEXT_PUBLIC_API_BASE_URL is not defined");
-}
-
 /**
- * Custom error class for API errors
+ * ApiError — typed error for non-OK HTTP responses.
  */
 export class ApiError extends Error {
-  constructor(
-    public status: number,
-    public statusText: string,
-    message?: string
-  ) {
-    super(message || `API Error: ${status} ${statusText}`);
-    this.name = "ApiError";
-  }
+    constructor(
+        public status: number,
+        public statusText: string,
+        public detail?: string,
+    ) {
+        super(detail || statusText);
+        this.name = "ApiError";
+    }
 }
 
 /**
- * Request options for API client
+ * Valid HTTP methods.
  */
-interface RequestOptions {
-  token?: string;
-  headers?: Record<string, string>;
-}
+type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 /**
- * Builds headers for API requests
+ * Generic fetch wrapper for client-side API calls.
  */
-function buildHeaders(options?: RequestOptions): HeadersInit {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-
-  if (options?.token) {
-    headers["Authorization"] = `Bearer ${options.token}`;
-  }
-
-  if (options?.headers) {
-    Object.assign(headers, options.headers);
-  }
-
-  return headers;
-}
-
-/**
- * Handles API response and errors
- */
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    let message: string | undefined;
-    
-    try {
-      const errorBody = await response.json();
-      message = errorBody.message || errorBody.error;
-    } catch {
-      // Response body is not JSON
+async function clientFetch<T>(
+    endpoint: string,
+    method: HttpMethod,
+    body?: unknown,
+    options?: RequestInit,
+): Promise<T> {
+    if (!API_BASE_URL) {
+        throw new Error("NEXT_PUBLIC_API_BASE_URL is not defined");
     }
 
-    throw new ApiError(response.status, response.statusText, message);
-  }
+    const headers: HeadersInit = {
+        "Content-Type": "application/json",
+        ...(options?.headers || {}),
+    };
 
-  // Handle 204 No Content
-  if (response.status === 204) {
-    return undefined as T;
-  }
+    const config: RequestInit = {
+        method,
+        headers,
+        ...options,
+    };
 
-  return response.json();
+    if (body) {
+        config.body = JSON.stringify(body);
+    }
+
+    // Include credentials (cookies) in client-side requests
+    config.credentials = "include";
+
+    const res = await fetch(`${API_BASE_URL}${endpoint}`, config);
+
+    if (!res.ok) {
+        let detail: string | undefined;
+        try {
+            const data = await res.json();
+            detail = data.message || data.error;
+        } catch {
+            // ignore non-json error
+        }
+        throw new ApiError(res.status, res.statusText, detail);
+    }
+
+    // Handle 204 No Content
+    if (res.status === 204) {
+        return undefined as unknown as T;
+    }
+
+    return res.json();
 }
 
 /**
- * API Client for making HTTP requests
+ * Check if the error is an instance of ApiError.
+ */
+export function isApiError(error: unknown): error is ApiError {
+    return error instanceof ApiError;
+}
+
+/**
+ * Exported API Client object.
  */
 export const apiClient = {
-  /**
-   * GET request
-   */
-  async get<T>(endpoint: string, options?: RequestOptions): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: "GET",
-      headers: buildHeaders(options),
-      credentials: "include",
-    });
+    get: <T>(endpoint: string, options?: RequestInit) =>
+        clientFetch<T>(endpoint, "GET", undefined, options),
 
-    return handleResponse<T>(response);
-  },
+    post: <T>(endpoint: string, body?: unknown, options?: RequestInit) =>
+        clientFetch<T>(endpoint, "POST", body, options),
 
-  /**
-   * POST request
-   */
-  async post<T>(
-    endpoint: string,
-    data?: unknown,
-    options?: RequestOptions
-  ): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: "POST",
-      headers: buildHeaders(options),
-      credentials: "include",
-      body: data ? JSON.stringify(data) : undefined,
-    });
+    put: <T>(endpoint: string, body?: unknown, options?: RequestInit) =>
+        clientFetch<T>(endpoint, "PUT", body, options),
 
-    return handleResponse<T>(response);
-  },
+    patch: <T>(endpoint: string, body?: unknown, options?: RequestInit) =>
+        clientFetch<T>(endpoint, "PATCH", body, options),
 
-  /**
-   * PUT request
-   */
-  async put<T>(
-    endpoint: string,
-    data?: unknown,
-    options?: RequestOptions
-  ): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: "PUT",
-      headers: buildHeaders(options),
-      credentials: "include",
-      body: data ? JSON.stringify(data) : undefined,
-    });
-
-    return handleResponse<T>(response);
-  },
-
-  /**
-   * PATCH request
-   */
-  async patch<T>(
-    endpoint: string,
-    data?: unknown,
-    options?: RequestOptions
-  ): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: "PATCH",
-      headers: buildHeaders(options),
-      credentials: "include",
-      body: data ? JSON.stringify(data) : undefined,
-    });
-
-    return handleResponse<T>(response);
-  },
-
-  /**
-   * DELETE request
-   */
-  async delete<T>(endpoint: string, options?: RequestOptions): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: "DELETE",
-      headers: buildHeaders(options),
-      credentials: "include",
-    });
-
-    return handleResponse<T>(response);
-  },
+    delete: <T>(endpoint: string, options?: RequestInit) =>
+        clientFetch<T>(endpoint, "DELETE", undefined, options),
 };

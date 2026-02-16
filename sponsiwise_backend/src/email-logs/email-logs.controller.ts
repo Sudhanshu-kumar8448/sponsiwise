@@ -45,9 +45,9 @@ class EmailLogsQueryDto {
  */
 @Controller('manager')
 @UseGuards(AuthGuard, RoleGuard)
-@Roles(Role.MANAGER)
+@Roles(Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN)
 export class EmailLogsController {
-  constructor(private readonly emailLogsService: EmailLogsService) {}
+  constructor(private readonly emailLogsService: EmailLogsService) { }
 
   @Get('email-logs')
   async getEmailLogs(@Query() query: EmailLogsQueryDto, @CurrentUser() user: JwtPayloadWithClaims) {

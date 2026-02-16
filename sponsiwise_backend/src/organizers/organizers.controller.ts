@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Param,
   Body,
   Query,
@@ -24,6 +25,7 @@ import { CreateOrganizerDto, UpdateOrganizerDto, ListOrganizersQueryDto } from '
  *  - GET    /organizers          → USER, ADMIN (own tenant) / SUPER_ADMIN (all)
  *  - GET    /organizers/:id      → USER, ADMIN (own tenant) / SUPER_ADMIN (all)
  *  - PATCH  /organizers/:id      → ADMIN (own tenant) / SUPER_ADMIN (all)
+ *  - DELETE /organizers/:id      → ADMIN (own tenant) / SUPER_ADMIN (all)
  *
  * Tenant isolation is enforced at the service layer:
  *  - USER / ADMIN operations are scoped to callerTenantId (from JWT)
@@ -31,7 +33,7 @@ import { CreateOrganizerDto, UpdateOrganizerDto, ListOrganizersQueryDto } from '
  */
 @Controller('organizers')
 export class OrganizersController {
-  constructor(private readonly organizerService: OrganizerService) {}
+  constructor(private readonly organizerService: OrganizerService) { }
 
   // ─── CREATE ──────────────────────────────────────────────
 
@@ -99,5 +101,23 @@ export class OrganizersController {
     @CurrentUser() user: JwtPayloadWithClaims,
   ) {
     return this.organizerService.update(id, dto, user.role, user.tenant_id);
+  }
+
+  // ─── DELETE ──────────────────────────────────────────────
+
+  /**
+   * DELETE /organizers/:id
+   * Soft delete an organizer.
+   * - ADMIN:       within own tenant
+   * - SUPER_ADMIN: any tenant
+   */
+  @Delete(':id')
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  async remove(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: JwtPayloadWithClaims,
+  ) {
+    return this.organizerService.remove(id, user.role, user.tenant_id);
   }
 }

@@ -23,7 +23,7 @@ export interface CreateNotificationInput {
 export class NotificationsService {
   private readonly logger = new Logger(NotificationsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   /**
    * Create a new notification record.
@@ -142,6 +142,28 @@ export class NotificationsService {
     return {
       id: updated.id,
       read: updated.read,
+      readAt: new Date().toISOString(), // Assuming we might add readAt later, but for now just returning predictable response
+    };
+  }
+
+  /**
+   * Mark ALL notifications as read for a user.
+   */
+  async markAllAsRead(userId: string, tenantId: string) {
+    const result = await this.prisma.notification.updateMany({
+      where: {
+        userId,
+        tenantId,
+        read: false,
+      },
+      data: {
+        read: true,
+      },
+    });
+
+    return {
+      count: result.count,
+      message: `Marked ${result.count} notifications as read`,
     };
   }
 }

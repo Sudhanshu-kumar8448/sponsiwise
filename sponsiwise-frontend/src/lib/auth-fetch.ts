@@ -51,7 +51,8 @@ export async function authFetch<T>(
             Cookie: cookieHeader,
             ...(init?.headers as Record<string, string>),
         },
-        cache: "no-store",
+        cache: init?.cache ?? (revalidate ? undefined : "no-store"),
+        next: revalidate ? { revalidate } : undefined,
         ...rest,
     });
 

@@ -15,7 +15,6 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
  */
 export async function getServerUser(): Promise<AuthUser | null> {
   if (!API_BASE_URL) {
-    console.error("NEXT_PUBLIC_API_BASE_URL is not defined");
     return null;
   }
 
@@ -40,8 +39,7 @@ export async function getServerUser(): Promise<AuthUser | null> {
 
     const user: AuthUser = await res.json();
     return user;
-  } catch (error) {
-    console.error("getServerUser failed:", error);
+  } catch {
     return null;
   }
 }

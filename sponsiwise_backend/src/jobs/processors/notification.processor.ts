@@ -126,43 +126,60 @@ export class NotificationProcessor extends WorkerHost {
 
     const severity = isVerified ? NotificationSeverity.SUCCESS : NotificationSeverity.ERROR;
 
-    // Find the owner of the entity to notify them
-    let ownerUserId: string | null = null;
+    // Find all owners/admins of the entity to notify them
+    let recipientUserIds: string[] = [];
 
     if (data.entityType === 'Company') {
-      const user = await this.prisma.user.findFirst({
+      const users = await this.prisma.user.findMany({
         where: { companyId: data.entityId, tenantId: data.tenantId },
         select: { id: true },
       });
-      ownerUserId = user?.id ?? null;
+      recipientUserIds = users.map((u) => u.id);
     } else if (data.entityType === 'Event') {
       const event = await this.prisma.event.findFirst({
         where: { id: data.entityId, tenantId: data.tenantId },
-        select: { organizer: { select: { users: { select: { id: true }, take: 1 } } } },
+        select: {
+          organizer: {
+            select: {
+              users: {
+                select: { id: true },
+              },
+            },
+          },
+        },
       });
-      ownerUserId = event?.organizer?.users?.[0]?.id ?? null;
+      if (event?.organizer?.users) {
+        recipientUserIds = event.organizer.users.map((u) => u.id);
+      }
     }
 
-    if (!ownerUserId) {
+    if (recipientUserIds.length === 0) {
       this.logger.warn(
-        `No owner found for ${data.entityType} ${data.entityId} — skipping notification`,
+        `No recipients found for ${data.entityType} ${data.entityId} — skipping notification`,
       );
       return;
     }
 
     const linkPrefix = data.entityType === 'Company' ? 'companies' : 'events';
 
-    await this.notificationsService.create({
-      tenantId: data.tenantId,
-      userId: ownerUserId,
-      title,
-      message,
-      severity,
-      link: `/dashboard/${linkPrefix}/${data.entityId}`,
-      entityType: data.entityType,
-      entityId: data.entityId,
-    });
+    // Broadcast notification to all recipients
+    await Promise.all(
+      recipientUserIds.map((userId) =>
+        this.notificationsService.create({
+          tenantId: data.tenantId,
+          userId,
+          title,
+          message,
+          severity,
+          link: `/dashboard/${linkPrefix}/${data.entityId}`,
+          entityType: data.entityType,
+          entityId: data.entityId,
+        }),
+      ),
+    );
 
-    this.logger.log(`Verification notification persisted: ${jobName} for user ${ownerUserId}`);
+    this.logger.log(
+      `Verification notification persisted for ${recipientUserIds.length} users (Entity: ${data.entityType} ${data.entityId})`,
+    );
   }
 }

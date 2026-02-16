@@ -1,4 +1,5 @@
-import { Injectable, ConflictException, UnauthorizedException, Logger } from '@nestjs/common';
+import { Injectable, ConflictException, UnauthorizedException, ForbiddenException, Logger } from '@nestjs/common';
+import { TenantStatus } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../common/providers/prisma.service';
@@ -34,6 +35,17 @@ export class AuthService {
   async getMe(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        tenantId: true,
+        companyId: true,
+        organizerId: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
     if (!user) {
@@ -44,7 +56,7 @@ export class AuthService {
       throw new UnauthorizedException('Account is deactivated');
     }
 
-    return this.excludePassword(user);
+    return user;
   }
 
   /**
@@ -138,6 +150,16 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    // Check if tenant is active
+    const tenant = await this.prisma.tenant.findUnique({
+      where: { id: user.tenantId },
+      select: { status: true },
+    });
+
+    if (!tenant || tenant.status === TenantStatus.SUSPENDED || tenant.status === TenantStatus.DEACTIVATED) {
+      throw new ForbiddenException('Your organization account is suspended or deactivated. Please contact support.');
+    }
+
     // Generate JWT payload
     const payload: JwtPayload = {
       sub: user.id,
@@ -225,6 +247,16 @@ export class AuthService {
 
     if (!user || !user.isActive) {
       throw new UnauthorizedException('User not found or deactivated');
+    }
+
+    // Check if tenant is still active
+    const tenant = await this.prisma.tenant.findUnique({
+      where: { id: user.tenantId },
+      select: { status: true },
+    });
+
+    if (!tenant || tenant.status === TenantStatus.SUSPENDED || tenant.status === TenantStatus.DEACTIVATED) {
+      throw new ForbiddenException('Your organization account is suspended or deactivated.');
     }
 
     // 7. Rotate: revoke the old token and mark rotatedAt

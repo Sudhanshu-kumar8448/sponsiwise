@@ -28,7 +28,7 @@ export class PublicService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cache: CacheService,
-  ) {}
+  ) { }
 
   // ─── GET /events/public ──────────────────────────────────
 
@@ -116,6 +116,69 @@ export class PublicService {
     await this.cache.set(cacheKey, { data, total }, EVENTS_LIST_TTL);
 
     return { data, total, page, page_size: pageSize };
+  }
+
+  // ─── GET /events/public/:slug ────────────────────────────
+
+  async getEventBySlug(slug: string) {
+    const cacheKey = `${CACHE_PREFIX}:event:${slug}`;
+    const cached = await this.cache.get(cacheKey);
+    if (cached) return cached;
+
+    // slug is currently the event ID
+    const event = await this.prisma.event.findFirst({
+      where: {
+        id: slug,
+        isActive: true,
+        status: EventStatus.PUBLISHED,
+        verificationStatus: VerificationStatus.VERIFIED,
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        location: true,
+        startDate: true,
+        endDate: true,
+        logoUrl: true,
+        status: true,
+        createdAt: true,
+        organizer: {
+          select: {
+            id: true,
+            name: true,
+            logoUrl: true,
+          },
+        },
+      },
+    });
+
+    if (!event) {
+      throw new NotFoundException('Event not found');
+    }
+
+    const result = {
+      id: event.id,
+      title: event.title,
+      slug: event.id,
+      description: event.description ?? '',
+      start_date: event.startDate.toISOString(),
+      end_date: event.endDate.toISOString(),
+      location: event.location ?? '',
+      image_url: event.logoUrl,
+      category: '',
+      status: 'published' as const,
+      organizer: {
+        id: event.organizer.id,
+        name: event.organizer.name,
+        logo_url: event.organizer.logoUrl,
+      },
+      tags: [] as string[],
+      created_at: event.createdAt.toISOString(),
+    };
+
+    await this.cache.set(cacheKey, result, EVENTS_LIST_TTL);
+    return result;
   }
 
   // ─── GET /companies/public/:slug ─────────────────────────

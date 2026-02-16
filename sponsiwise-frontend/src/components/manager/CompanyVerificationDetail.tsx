@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { fetchVerifiableCompanyById, fetchCompanyLifecycle } from "@/lib/manager-api";
+import { fetchVerifiableCompanyById, fetchCompanyLifecycleView } from "@/lib/manager-api";
 import { verifyCompanyAction } from "@/app/(authenticated)/dashboard/_manager-actions";
 import type { VerifiableCompany, CompanyTimelineEntry } from "@/lib/types/manager";
 import { VerificationStatus } from "@/lib/types/manager";
@@ -17,7 +17,7 @@ export default async function CompanyVerificationDetail({
   let lifecycle: CompanyTimelineEntry[] = [];
   try {
     company = await fetchVerifiableCompanyById(id);
-    const lifecycleResp = await fetchCompanyLifecycle(id);
+    const lifecycleResp = await fetchCompanyLifecycleView(id);
     lifecycle = lifecycleResp?.timeline ?? [];
   } catch {
     notFound();
@@ -131,11 +131,11 @@ export default async function CompanyVerificationDetail({
           {company.verification_notes && (
             <div
               className={`rounded-xl p-6 shadow ${company.verification_status === VerificationStatus.VERIFIED
-                  ? "border border-green-200 bg-green-50"
-                  : company.verification_status ===
-                    VerificationStatus.REJECTED
-                    ? "border border-red-200 bg-red-50"
-                    : "bg-white"
+                ? "border border-green-200 bg-green-50"
+                : company.verification_status ===
+                  VerificationStatus.REJECTED
+                  ? "border border-red-200 bg-red-50"
+                  : "bg-white"
                 }`}
             >
               <h2 className="text-lg font-semibold text-gray-900">

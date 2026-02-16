@@ -19,7 +19,7 @@ import { CreateOrganizerDto, UpdateOrganizerDto, ListOrganizersQueryDto } from '
 export class OrganizerService {
   private readonly logger = new Logger(OrganizerService.name);
 
-  constructor(private readonly organizerRepository: OrganizerRepository) {}
+  constructor(private readonly organizerRepository: OrganizerRepository) { }
 
   // ─── CREATE ──────────────────────────────────────────────
 
@@ -168,6 +168,30 @@ export class OrganizerService {
     this.logger.log(
       `Organizer ${organizerId} updated by ${callerRole} (tenant: ${callerTenantId})`,
     );
+    return organizer;
+  }
+
+  // ─── DELETE (Soft) ───────────────────────────────────────
+
+  /**
+   * Soft delete an organizer.
+   * - ADMIN: within own tenant
+   * - SUPER_ADMIN: any tenant
+   */
+  async remove(organizerId: string, callerRole: Role, callerTenantId: string): Promise<Organizer> {
+    await this.findById(organizerId, callerRole, callerTenantId);
+
+    const organizer =
+      callerRole === Role.SUPER_ADMIN
+        ? await this.organizerRepository.updateById(organizerId, { isActive: false })
+        : await this.organizerRepository.updateByIdAndTenant(organizerId, callerTenantId, {
+          isActive: false,
+        });
+
+    this.logger.log(
+      `Organizer ${organizerId} soft-deleted by ${callerRole} (tenant: ${callerTenantId})`,
+    );
+
     return organizer;
   }
 }

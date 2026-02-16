@@ -114,60 +114,61 @@ export interface EventLifecycleResponse {
 export class ManagerLifecycleService {
   private readonly logger = new Logger(ManagerLifecycleService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async getEventLifecycle(tenantId: string, eventId: string): Promise<EventLifecycleResponse> {
-    // ─── 1. Fetch event with organizer ──────────────────────────────
-    const event = await this.prisma.event.findFirst({
-      where: { id: eventId, tenantId },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        location: true,
-        startDate: true,
-        endDate: true,
-        status: true,
-        verificationStatus: true,
-        createdAt: true,
-        organizer: {
-          select: {
-            id: true,
-            name: true,
-            contactEmail: true,
-            logoUrl: true,
+    // ─── 1. Parallel Fetch: Event & Sponsorships ────────────────────
+    const [event, sponsorships] = await Promise.all([
+      this.prisma.event.findFirst({
+        where: { id: eventId, tenantId },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          location: true,
+          startDate: true,
+          endDate: true,
+          status: true,
+          verificationStatus: true,
+          createdAt: true,
+          organizer: {
+            select: {
+              id: true,
+              name: true,
+              contactEmail: true,
+              logoUrl: true,
+            },
           },
         },
-      },
-    });
+      }),
+      this.prisma.sponsorship.findMany({
+        where: { eventId, tenantId },
+        select: {
+          id: true,
+          company: {
+            select: { id: true, name: true },
+          },
+          proposals: {
+            select: {
+              id: true,
+              status: true,
+              proposedTier: true,
+              proposedAmount: true,
+              submittedAt: true,
+              reviewedAt: true,
+              createdAt: true,
+            },
+            orderBy: { createdAt: 'asc' },
+          },
+        },
+      }),
+    ]);
 
     if (!event) {
       throw new NotFoundException(`Event ${eventId} not found`);
     }
 
-    // ─── 2. Fetch all proposals under this event (via sponsorships) ─
-    const sponsorships = await this.prisma.sponsorship.findMany({
-      where: { eventId, tenantId },
-      select: {
-        id: true,
-        company: {
-          select: { id: true, name: true },
-        },
-        proposals: {
-          select: {
-            id: true,
-            status: true,
-            proposedTier: true,
-            proposedAmount: true,
-            submittedAt: true,
-            reviewedAt: true,
-            createdAt: true,
-          },
-          orderBy: { createdAt: 'asc' },
-        },
-      },
-    });
-
+    // ─── 2. Process Proposals ───────────────────────────────────────
     const proposals = sponsorships.flatMap((s) =>
       s.proposals.map((p) => ({
         ...p,
@@ -181,33 +182,33 @@ export class ManagerLifecycleService {
 
     const proposalIds = proposals.map((p) => p.id);
 
-    // ─── 3. Fetch audit logs for event + proposals ──────────────────
-    const auditLogs = await this.prisma.auditLog.findMany({
-      where: {
-        tenantId,
-        OR: [
-          { entityType: 'Event', entityId: eventId },
-          ...(proposalIds.length > 0
-            ? [{ entityType: 'Proposal', entityId: { in: proposalIds } }]
-            : []),
-        ],
-      },
-      orderBy: { createdAt: 'asc' },
-    });
-
-    // ─── 4. Fetch email logs for event + proposals ──────────────────
-    const emailLogs = await this.prisma.emailLog.findMany({
-      where: {
-        tenantId,
-        OR: [
-          { entityType: 'Event', entityId: eventId },
-          ...(proposalIds.length > 0
-            ? [{ entityType: 'Proposal', entityId: { in: proposalIds } }]
-            : []),
-        ],
-      },
-      orderBy: { createdAt: 'asc' },
-    });
+    // ─── 3. Parallel Fetch: Audit Logs & Email Logs ─────────────────
+    const [auditLogs, emailLogs] = await Promise.all([
+      this.prisma.auditLog.findMany({
+        where: {
+          tenantId,
+          OR: [
+            { entityType: 'Event', entityId: eventId },
+            ...(proposalIds.length > 0
+              ? [{ entityType: 'Proposal', entityId: { in: proposalIds } }]
+              : []),
+          ],
+        },
+        orderBy: { createdAt: 'asc' },
+      }),
+      this.prisma.emailLog.findMany({
+        where: {
+          tenantId,
+          OR: [
+            { entityType: 'Event', entityId: eventId },
+            ...(proposalIds.length > 0
+              ? [{ entityType: 'Proposal', entityId: { in: proposalIds } }]
+              : []),
+          ],
+        },
+        orderBy: { createdAt: 'asc' },
+      }),
+    ]);
 
     // ─── 5. Build timeline ──────────────────────────────────────────
     const timeline: TimelineEntry[] = [];

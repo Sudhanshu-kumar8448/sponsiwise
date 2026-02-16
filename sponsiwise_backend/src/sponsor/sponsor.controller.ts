@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, Query, Body, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Param, Query, Body, UseGuards, HttpCode, HttpStatus, ParseUUIDPipe } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { AuthGuard, RoleGuard } from '../common/guards';
 import { Roles, CurrentUser } from '../common/decorators';
@@ -50,7 +50,7 @@ export class SponsorController {
    */
   @Get('events/:id')
   async getEventById(
-    @Param('id') eventId: string,
+    @Param('id', ParseUUIDPipe) eventId: string,
     @CurrentUser() user: JwtPayloadWithClaims,
   ) {
     return this.sponsorService.getEventById(user.tenant_id, user.company_id, eventId);
@@ -72,7 +72,7 @@ export class SponsorController {
    */
   @Get('proposals/:id')
   async getProposalById(
-    @Param('id') proposalId: string,
+    @Param('id', ParseUUIDPipe) proposalId: string,
     @CurrentUser() user: JwtPayloadWithClaims,
   ) {
     return this.sponsorService.getProposalById(user.tenant_id, user.company_id, proposalId);
@@ -96,7 +96,7 @@ export class SponsorController {
   @Post('proposals/:id/withdraw')
   @HttpCode(HttpStatus.OK)
   async withdrawProposal(
-    @Param('id') proposalId: string,
+    @Param('id', ParseUUIDPipe) proposalId: string,
     @CurrentUser() user: JwtPayloadWithClaims,
   ) {
     return this.sponsorService.withdrawProposal(user.tenant_id, user.company_id, proposalId);

@@ -8,6 +8,8 @@ import type {
 } from './dto';
 import type { CreateProposalDto } from './dto';
 
+import { CacheService } from '../common/providers/cache.service';
+
 /**
  * SponsorService — read-only aggregation layer for sponsor-scoped data.
  *
@@ -18,7 +20,10 @@ import type { CreateProposalDto } from './dto';
 export class SponsorService {
   private readonly logger = new Logger(SponsorService.name);
 
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cacheService: CacheService,
+  ) { }
 
   /**
    * Validate that the caller has a linked company.
@@ -34,6 +39,12 @@ export class SponsorService {
 
   async getDashboardStats(tenantId: string, companyId?: string) {
     this.assertCompanyId(companyId);
+
+    const cacheKey = CacheService.key('sponsor', 'dashboard', tenantId, companyId);
+    const cached = await this.cacheService.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
 
     // All proposals belonging to the sponsor's company
     // Proposals link through Sponsorship: Proposal → Sponsorship.companyId
@@ -101,21 +112,26 @@ export class SponsorService {
       },
     });
 
-    let totalInvested = 0;
-    for (const s of totalInvestedResult) {
-      for (const p of s.proposals) {
-        totalInvested += p.proposedAmount ? Number(p.proposedAmount) : 0;
-      }
-    }
+    const totalInvested = totalInvestedResult.reduce((sum, sponsorship) => {
+      const amount = sponsorship.proposals[0]?.proposedAmount
+        ? Number(sponsorship.proposals[0].proposedAmount)
+        : 0;
+      return sum + amount;
+    }, 0);
 
-    return {
+    const stats = {
       total_proposals: totalProposals,
       pending_proposals: pendingProposals,
       approved_proposals: approvedProposals,
-      total_sponsorships: activeSponsorships,
+      rejected_proposals: rejectedProposals,
+      active_sponsorships: activeSponsorships,
       total_invested: totalInvested,
-      currency: 'USD',
     };
+
+    // Cache for 60 seconds
+    this.cacheService.set(cacheKey, stats, 60);
+
+    return stats;
   }
 
   // ─── Browsable Events ────────────────────────────────────

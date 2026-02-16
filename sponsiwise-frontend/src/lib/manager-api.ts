@@ -127,10 +127,5 @@ export async function fetchCompanyLifecycleView(
   );
 }
 
-/** @deprecated Use fetchCompanyLifecycleView instead */
-export async function fetchCompanyLifecycle(
-  id: string,
-): Promise<CompanyLifecycleResponse> {
-  return fetchCompanyLifecycleView(id);
-}
+
 

@@ -10,7 +10,7 @@ import { PublicEventsQueryDto } from './dto';
  */
 @Controller('public')
 export class PublicController {
-  constructor(private readonly publicService: PublicService) {}
+  constructor(private readonly publicService: PublicService) { }
 
   /**
    * GET /public/events
@@ -47,5 +47,17 @@ export class PublicController {
   @Get('stats')
   async getStats() {
     return this.publicService.getStats();
+  }
+
+  /**
+   * GET /public/events/:slug
+   *
+   * Returns a single public event by slug (currently event ID).
+   * Only if the event is ACTIVE + PUBLISHED + VERIFIED.
+   * Returns 404 if not found or not public.
+   */
+  @Get('events/:slug')
+  async getPublicEventBySlug(@Param('slug') slug: string) {
+    return this.publicService.getEventBySlug(slug);
   }
 }

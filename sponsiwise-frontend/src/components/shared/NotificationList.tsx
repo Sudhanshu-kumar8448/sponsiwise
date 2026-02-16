@@ -10,7 +10,11 @@ import type { BadgeVariant } from "@/components/shared/StatusBadge";
 
 // ─── Client-side API helpers (browser fetch, not server-side authFetch) ─
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+if (!API_BASE) {
+    throw new Error("NEXT_PUBLIC_API_BASE_URL is not defined");
+}
 
 async function markNotificationRead(id: string): Promise<void> {
     const res = await fetch(`${API_BASE}/notifications/${id}/read`, {
@@ -21,11 +25,14 @@ async function markNotificationRead(id: string): Promise<void> {
     if (!res.ok) throw new Error("Failed to mark notification as read");
 }
 
-async function markAllNotificationsRead(ids: string[]): Promise<number> {
-    const results = await Promise.allSettled(
-        ids.map((id) => markNotificationRead(id)),
-    );
-    return results.filter((r) => r.status === "fulfilled").length;
+async function markAllNotificationsRead(ids: string[]): Promise<void> {
+    // Optimisation: use bulk endpoint instead of N+1 requests
+    const res = await fetch(`${API_BASE}/notifications/read-all`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+    });
+    if (!res.ok) throw new Error("Failed to mark all notifications as read");
 }
 
 // ─── Severity badge variants ───────────────────────────────────────────
@@ -72,8 +79,8 @@ function NotificationRow({
         <div
             onClick={handleClick}
             className={`flex items-start gap-4 rounded-2xl border px-5 py-4 transition-all cursor-pointer hover:bg-slate-800/50 ${!item.read
-                    ? "bg-blue-500/5 border-l-2 border-blue-500/30 border-t border-r border-b border-slate-800"
-                    : "bg-slate-900 border-slate-800 border-l-2 border-l-transparent"
+                ? "bg-blue-500/5 border-l-2 border-blue-500/30 border-t border-r border-b border-slate-800"
+                : "bg-slate-900 border-slate-800 border-l-2 border-l-transparent"
                 }`}
         >
             {/* Read indicator */}

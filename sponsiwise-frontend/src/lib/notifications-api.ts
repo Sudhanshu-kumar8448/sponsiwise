@@ -52,11 +52,8 @@ export async function markNotificationRead(
  * Calls mark-read on each notification.
  * Returns the number of notifications marked.
  */
-export async function markAllNotificationsRead(
-  notificationIds: string[],
-): Promise<number> {
-  const results = await Promise.allSettled(
-    notificationIds.map((id) => markNotificationRead(id)),
-  );
-  return results.filter((r) => r.status === "fulfilled").length;
+export async function markAllNotificationsRead(): Promise<void> {
+  await authFetch("/notifications/read-all", {
+    method: "PATCH",
+  });
 }
